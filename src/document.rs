@@ -1,5 +1,4 @@
-use std::fs;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize};
 
 /*
 <?xml version="1.0" encoding="UTF-8"?><ofd:Document xmlns:ofd="http://www.ofdspec.org/2016">
@@ -20,7 +19,7 @@ use serde::{Deserialize, Serialize};
 </ofd:Document>
 */
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Default)]
 #[serde(rename_all = "PascalCase")]
 pub struct Document {
     pub common_data: CommonData,
@@ -29,7 +28,7 @@ pub struct Document {
     pub custom_tags: Option<String>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Default)]
 #[serde(rename_all = "PascalCase")]
 pub struct CommonData {
     pub page_area: PageArea,
@@ -38,14 +37,14 @@ pub struct CommonData {
     pub max_unit_id: u32,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Default)]
 #[serde(rename_all = "PascalCase")]
 pub struct PageArea {
     pub physical_box: String,
     pub application_box: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Default)]
 #[serde(rename_all = "PascalCase")]
 pub struct Page {
     pub base_loc: String,
