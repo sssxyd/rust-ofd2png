@@ -1,7 +1,11 @@
 [package]
 name = "rofd"
 version = "0.1.0"
-edition = "2021"
+edition = "2025"
+description = "A OFD parser and renderer lib."
+authors = ["HualetWang <hualet@hualet.org>"]
+repository = "https://github.com/hualet/rofd"
+license = "MIT"
 
 [dependencies]
 cairo-rs = { version = "0.20.7", features = ["png"] }
