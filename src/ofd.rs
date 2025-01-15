@@ -53,13 +53,21 @@ pub struct DocInfo {
     #[serde(rename = "ModDate")]
     pub mod_date: String,
     #[serde(rename = "CustomDatas")]
-    pub custom_datas: Vec<CustomData>,
+    pub custom_datas: CustomDataList,
+}
+
+
+#[derive(Debug, Deserialize, Default)]
+#[serde(rename_all = "PascalCase")]
+pub struct CustomDataList {
+    #[serde(rename = "CustomData")]
+    pub custom_data: Vec<CustomData>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Default)]
 #[serde(rename_all = "PascalCase")]
 pub struct CustomData {
-    #[serde(rename = "Name", skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "Name")]
     pub name: Option<String>, // XML attribute
     #[serde(rename = "$value")]
     pub value: String, // XML node's text content
