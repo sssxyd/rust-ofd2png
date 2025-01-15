@@ -1,5 +1,6 @@
 pub mod ofd;
 mod document;
+pub mod render;
 
 use std::fs;
 use std::io::Read;
