@@ -5,7 +5,7 @@ use rofd::ofd;
 use rofd::render;
 
 fn main() {
-    std::process::exit(real_main2());
+    std::process::exit(real_main1());
 }
 
 fn real_main1() -> i32 {

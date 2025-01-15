@@ -61,8 +61,8 @@ pub struct DocInfo {
 pub struct CustomData {
     #[serde(rename = "Name", skip_serializing_if = "Option::is_none")]
     pub name: Option<String>, // XML attribute
-    // #[serde(rename = "$value")]
-    // pub value: String, // XML node's text content
+    #[serde(rename = "$value")]
+    pub value: String, // XML node's text content
 }
 
 impl Ofd {
