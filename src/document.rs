@@ -23,7 +23,7 @@ use serde::{Deserialize};
 #[serde(rename_all = "PascalCase")]
 pub struct Document {
     pub common_data: CommonData,
-    pub pages: Vec<Page>,
+    pub pages: PageList,
     pub annotations: Option<String>,
     pub custom_tags: Option<String>,
 }
@@ -34,6 +34,7 @@ pub struct CommonData {
     pub page_area: PageArea,
     pub public_res: String,
     pub document_res: String,
+    #[serde(rename = "MaxUnitID")]
     pub max_unit_id: u32,
 }
 
@@ -46,9 +47,17 @@ pub struct PageArea {
 
 #[derive(Deserialize, Debug, Default)]
 #[serde(rename_all = "PascalCase")]
-pub struct Page {
-    pub base_loc: String,
-    pub id: u32,
+pub struct PageList {
+    pub page: Vec<PageElement>, // TODO(hualet): don't know why, same in ofd.rs CustomData:custom_data.
+}
+
+#[derive(Deserialize, Debug, Default)]
+#[serde(rename_all = "PascalCase")]
+pub struct PageElement {
+    #[serde(rename = "BaseLoc")]
+    pub base_loc: Option<String>, // TODO(hualet): don't know why the field should be Option.
+    #[serde(rename = "ID")]
+    pub id: Option<u32>,
 }
 
 impl Document {

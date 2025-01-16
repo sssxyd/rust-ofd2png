@@ -1,15 +1,18 @@
 pub mod ofd;
 mod document;
 pub mod render;
+pub mod page;
 
 use std::fs;
+use std::path::Path;
 use std::io::Read;
 use std::io::BufReader;
 
 use zip::ZipArchive;
 
 use ofd::Ofd;
-use document::{CommonData, PageArea, Document, Page};
+use document::{Document, PageElement};
+use page::Page;
 
 impl Ofd {
     pub fn from_filename(filename: &str) -> Result<Ofd, zip::result::ZipError> {
@@ -17,18 +20,38 @@ impl Ofd {
         let reader = BufReader::new(file);
         let mut zip = ZipArchive::new(reader).unwrap();
         let mut ofd = Ofd::default();
-        for i in 0..zip.len() {
-            let mut zip_file = zip.by_index(i).unwrap();
-            println!("{}", zip_file.name());
+        let mut document = Document::default();
+
+        {
             // find the OFD.xml file and parse the content to ofd object.
-            if zip_file.name() == "OFD.xml" {
-                let mut content = String::new();
-                let _size = zip_file.read_to_string(&mut content).unwrap();
-                println!("{}", content);
-                ofd = Ofd::from_xml(&content).unwrap();
-                println!("ofd: {:#?}", ofd);
-            }
+            let mut ofd_file = zip.by_name("OFD.xml").unwrap();
+            let mut content = String::new();
+            let _size = ofd_file.read_to_string(&mut content).unwrap();
+            ofd = Ofd::from_xml(&content).unwrap();
+            println!("ofd: {:#?}", ofd);
         }
+
+        {
+            // find the DocRoot file and parse the content to document object.
+            let mut doc_file = zip.by_name(ofd.doc_body.doc_root.as_str()).unwrap();
+            let mut content = String::new();
+            let _size = doc_file.read_to_string(&mut content).unwrap();
+            document = Document::from_xml(&content).unwrap();
+            println!("document: {:#?}", document);
+        }
+
+        for i in 0..document.pages.page.len() {
+            let page = &document.pages.page[i];
+            // concat basename of document.doc_body.doc_root and page.base_loc
+            let path = Path::new(ofd.doc_body.doc_root.as_str());
+            println!("{}", path.parent().unwrap().join(page.base_loc.as_ref().unwrap().as_str()).to_str().unwrap());
+            let mut page_file = zip.by_name(&path.parent().unwrap().join(page.base_loc.as_ref().unwrap().as_str()).to_str().unwrap()).unwrap();
+            let mut content = String::new();
+            let _size = page_file.read_to_string(&mut content).unwrap();
+            let page = Page::from_xml(&content).unwrap();
+            println!("page: {:#?}", page);
+        }
+
         Ok(ofd)
     }
 }

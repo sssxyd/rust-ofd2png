@@ -1,6 +1,11 @@
 # rofd
 OFD parser and renderer lib.
 
+# usage & test
+
+```bash
+cargo run ./learning/test.ofd
+```
 
 # reference projects
 

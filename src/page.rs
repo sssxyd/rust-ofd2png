@@ -344,17 +344,60 @@ pub struct Content {
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "PascalCase")]
 pub struct Layer {
-    pub text_object: Vec<TextObject>,
+    #[serde(rename = "$value")]
+    events: Vec<Event>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+enum Event {
+    PathObject(PathObject),
+    TextObject(TextObject),
+    PageBlock(PageBlock),
+    ImageObject(ImageObject),
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct PathObject {
+    #[serde(rename = "ID")]
+    pub id: u32,
+    pub boundary: String,
+    pub line_width: f64,
+    pub stroke: Option<bool>,
+    pub stroke_color: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct ImageObject {
+    #[serde(rename = "ID")]
+    pub id: u32,
+    pub boundary: String,
+    #[serde(rename = "CTM")]
+    pub ctm: String,
+    #[serde(rename = "ResourceID")]
+    pub resource_id: u32,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct PageBlock {
+    #[serde(rename = "ID")]
+    pub id: u32,
+    #[serde(rename = "$value")]
+    events: Vec<Event>,
 }
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "PascalCase")]
 pub struct TextObject {
+    #[serde(rename = "ID")]
     pub id: u32,
     pub boundary: String,
     pub font: u32,
     pub size: f64,
-    pub fill_color: String,
+    pub fill_color: Option<String>,
     pub text_code: String,
 }
 
