@@ -1,4 +1,3 @@
-use std::fs;
 use serde::Deserialize;
 
 /*
@@ -345,12 +344,12 @@ pub struct Content {
 #[serde(rename_all = "PascalCase")]
 pub struct Layer {
     #[serde(rename = "$value")]
-    events: Vec<Event>,
+    pub events: Vec<Event>,
 }
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
-enum Event {
+pub enum Event {
     PathObject(PathObject),
     TextObject(TextObject),
     PageBlock(PageBlock),

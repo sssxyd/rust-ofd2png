@@ -1,7 +1,8 @@
 pub mod ofd;
-mod document;
+pub mod document;
 pub mod render;
 pub mod page;
+pub mod types;
 
 use std::fs;
 use std::path::Path;
@@ -13,6 +14,8 @@ use zip::ZipArchive;
 use ofd::Ofd;
 use document::{Document, PageElement};
 use page::Page;
+use render::Renderable;
+use types::CT_PageArea;
 
 impl Ofd {
     pub fn from_filename(filename: &str) -> Result<Ofd, zip::result::ZipError> {
@@ -40,6 +43,13 @@ impl Ofd {
             println!("document: {:#?}", document);
         }
 
+        let pybox = CT_PageArea::from(document.common_data.page_area.physical_box.clone());
+
+        let mut surface = cairo::ImageSurface::create(cairo::Format::ARgb32, pybox.width, pybox.height).unwrap();
+        let mut context = cairo::Context::new(&surface).unwrap();
+
+        document.render(&mut context);
+
         for i in 0..document.pages.page.len() {
             let page = &document.pages.page[i];
             // concat basename of document.doc_body.doc_root and page.base_loc
@@ -50,7 +60,12 @@ impl Ofd {
             let _size = page_file.read_to_string(&mut content).unwrap();
             let page = Page::from_xml(&content).unwrap();
             println!("page: {:#?}", page);
+
+            page.render(&mut context);
         }
+
+        let mut file = fs::File::create("out.png").unwrap();
+        surface.write_to_png(&mut file).unwrap();
 
         Ok(ofd)
     }
