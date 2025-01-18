@@ -364,12 +364,12 @@ pub struct PathObject {
     pub boundary: String,
     pub line_width: f64,
     pub stroke: Option<bool>,
-    pub stroke_color: Option<StrokeColor>,
+    pub stroke_color: Option<Color>,
 }
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
-pub struct StrokeColor {
+pub struct Color {
     pub value: String,
     pub alpha: Option<f64>,
 }
@@ -403,13 +403,33 @@ pub struct TextObject {
     pub boundary: String,
     pub font: u32,
     pub size: f64,
-    pub fill_color: Option<String>,
-    pub text_code: String,
+    pub fill_color: Option<Color>,
+    pub text_code: TextCode,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct TextCode {
+    pub x: f64,
+    pub y: f64,
+    pub delta_x: Option<String>,
+    #[serde(rename = "$value")]
+    pub value: String,
 }
 
 impl Page {
     pub fn from_xml(xml: &str) -> Result<Page, serde_xml_rs::Error> {
         serde_xml_rs::from_str(xml)
     }
+}
+
+
+impl Default for Color {
+  fn default() -> Self {
+      Color {
+          value: "0 0 0".to_string(),
+          alpha: Some(255.0),
+      }
+  }
 }
 

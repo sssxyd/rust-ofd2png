@@ -1,6 +1,6 @@
 use cairo;
 
-use crate::page::{Page, Event, PathObject};
+use crate::page::{Page, Event, PathObject, TextObject, Color};
 use crate::document::Document;
 
 use crate::types::CT_Box;
@@ -17,8 +17,27 @@ impl Renderable for Document {
     }
 }
 
+impl Renderable for Page {
+    fn render(&self, context: &mut cairo::Context) {
+        println!("render page");
+        for event in self.content.layer.events.iter() {
+            match event {
+                Event::PathObject(p) => {
+                    p.render(context);
+                }
+                Event::TextObject(t) => {
+                    t.render(context);
+                }
+                _ => {}
+            }
+        }
+    }
+}
+
 impl Renderable for PathObject {
     fn render(&self, context: &mut cairo::Context) {
+        context.save();
+
         let boundary = CT_Box::from(self.boundary.clone());
         let color = CT_Color::from(self.stroke_color.as_ref().unwrap().value.clone());
 
@@ -34,38 +53,31 @@ impl Renderable for PathObject {
         context.line_to(boundary.x as f64, boundary.y as f64);
 
         context.stroke();
+
+        context.restore();
     }
 }
 
-impl Renderable for Page {
+impl Renderable for TextObject {
     fn render(&self, context: &mut cairo::Context) {
-        println!("render page");
-        for event in self.content.layer.events.iter() {
-            match event {
-                Event::PathObject(p) => {
-                    p.render(context);
-                }
-                _ => {}
-            }
-        }
+        context.save();
+
+        let boundary = CT_Box::from(self.boundary.clone());
+        let color = self.fill_color.as_ref().unwrap_or(&Color::default()).value.clone();
+        let fill_color = CT_Color::from(color);
+
+        // TODO(hualet): load the right font
+        context.select_font_face("Sans", cairo::FontSlant::Normal, cairo::FontWeight::Normal);
+        context.set_font_size(self.size);
+
+        context.set_source_rgb(fill_color.value[0] as f64 / 255.0,
+            fill_color.value[1] as f64 / 255.0,
+            fill_color.value[2] as f64 / 255.0);
+        context.move_to(boundary.x as f64, boundary.y as f64);
+        context.show_text(self.text_code.value.as_str());
+
+
+        context.restore();
+
     }
 }
-
-
-// pub fn render() {
-//     let surface = cairo::ImageSurface::create(cairo::Format::ARgb32, 200, 200).unwrap();
-//     let context = cairo::Context::new(&surface).unwrap();
-
-//     context.set_source_rgb(1.0, 1.0, 1.0);
-//     context.paint();
-
-//     context.set_source_rgb(0.0, 0.0, 0.0);
-//     context.select_font_face("Sans", cairo::FontSlant::Normal, cairo::FontWeight::Normal);
-//     context.set_font_size(40.0);
-
-//     context.move_to(50.0, 50.0);
-//     context.show_text("Hello, world!");
-
-//     let mut file = File::create("out.png").unwrap();
-//     surface.write_to_png(&mut file).unwrap();
-// }

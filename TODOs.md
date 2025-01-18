@@ -10,9 +10,14 @@
 
 - [ ] interface like poppler
 - [ ] module redesign
-    - [ ] parser 
+    - [ ] parser
     - [ ] renderer
     - [ ] types
 - [ ] permissions
 - [ ] encryption/decryption
 - [ ] scaling
+- [ ] rendering
+    - [ ] TextObject
+    - [x] PathObject
+    - [ ] ImageObject
+    - [ ] PageBlock
