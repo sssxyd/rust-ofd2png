@@ -64,7 +64,7 @@ impl Ofd {
             page.render(&mut context);
         }
 
-        let mut file = fs::File::create("out.png").unwrap();
+        let mut file = fs::File::create("target/out.png").unwrap();
         surface.write_to_png(&mut file).unwrap();
 
         Ok(ofd)

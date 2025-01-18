@@ -364,7 +364,14 @@ pub struct PathObject {
     pub boundary: String,
     pub line_width: f64,
     pub stroke: Option<bool>,
-    pub stroke_color: Option<String>,
+    pub stroke_color: Option<StrokeColor>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct StrokeColor {
+    pub value: String,
+    pub alpha: Option<f64>,
 }
 
 #[derive(Debug, Deserialize)]

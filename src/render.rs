@@ -1,7 +1,10 @@
 use cairo;
 
-use crate::page::{Page, Event};
+use crate::page::{Page, Event, PathObject};
 use crate::document::Document;
+
+use crate::types::CT_Box;
+use crate::types::CT_Color;
 
 pub trait Renderable {
     fn render(&self, context: &mut cairo::Context);
@@ -14,21 +17,37 @@ impl Renderable for Document {
     }
 }
 
+impl Renderable for PathObject {
+    fn render(&self, context: &mut cairo::Context) {
+        let boundary = CT_Box::from(self.boundary.clone());
+        let color = CT_Color::from(self.stroke_color.as_ref().unwrap().value.clone());
+
+        context.set_source_rgb(color.value[0] as f64 / 255.0,
+            color.value[1] as f64 / 255.0,
+            color.value[2] as f64 / 255.0);
+        context.set_line_width(self.line_width);
+
+        context.move_to(boundary.x as f64, boundary.y as f64);
+        context.line_to((boundary.x + boundary.width) as f64, boundary.y as f64);
+        context.line_to((boundary.x + boundary.width) as f64, (boundary.y + boundary.height) as f64);
+        context.line_to(boundary.x as f64, (boundary.y + boundary.height) as f64);
+        context.line_to(boundary.x as f64, boundary.y as f64);
+
+        context.stroke();
+    }
+}
+
 impl Renderable for Page {
     fn render(&self, context: &mut cairo::Context) {
         println!("render page");
-        // for event in self.content.layer.events.iter() {
-            // match event {
-            //     Event::PathObject(p) => {
-            //         context.move_to(p.x1, p.y1);
-            //         context.line_to(p.x2, p.y2);
-            //     }
-            //     Event::TextObject(t) => {
-            //         context.move_to(t.x, t.y);
-            //         context.show_text(t.text.as_str());
-            //     }
-            // }
-        // }
+        for event in self.content.layer.events.iter() {
+            match event {
+                Event::PathObject(p) => {
+                    p.render(context);
+                }
+                _ => {}
+            }
+        }
     }
 }
 
