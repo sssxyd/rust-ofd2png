@@ -17,7 +17,7 @@
 - [ ] encryption/decryption
 - [ ] scaling
 - [ ] rendering
-    - [ ] TextObject
+    - [x] TextObject
     - [x] PathObject
     - [ ] ImageObject
     - [ ] PageBlock
