@@ -9,3 +9,10 @@
 ## features
 
 - [ ] interface like poppler
+- [ ] module redesign
+    - [ ] parser 
+    - [ ] renderer
+    - [ ] types
+- [ ] permissions
+- [ ] encryption/decryption
+- [ ] scaling
