@@ -1,3 +1,5 @@
+use serde::Deserialize;
+
 /*
 <?xml version="1.0" encoding="UTF-8"?><ofd:Res xmlns:ofd="http://www.ofdspec.org/2016" BaseLoc="Res">
   <ofd:MultiMedias>
@@ -14,7 +16,6 @@
 #[derive(Deserialize, Debug, Default)]
 #[serde(rename_all = "PascalCase")]
 pub struct Res {
-    #[serde(rename = "$value")]
     pub base_loc: String,
     pub multi_medias: MultiMedias,
 }
@@ -28,8 +29,8 @@ pub struct MultiMedias {
 #[derive(Deserialize, Debug, Default)]
 #[serde(rename_all = "PascalCase")]
 pub struct MultiMedia {
+    #[serde(rename = "ID")]
     pub id: String,
-    #[serde(rename = "$value")]
     pub format: String,
     pub media_file: String,
 }
