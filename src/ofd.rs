@@ -1,3 +1,7 @@
+use std::fs::File;
+use std::io::BufReader;
+
+use zip::ZipArchive;
 use serde::{Deserialize, Serialize};
 
 /* 
@@ -27,7 +31,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize, Default)]
 #[serde(rename_all = "PascalCase")]
-pub struct Ofd {
+pub struct OfdNode {
     #[serde(rename = "DocBody")]
     pub doc_body: DocBody,
 }
@@ -73,8 +77,13 @@ pub struct CustomData {
     pub value: String, // XML node's text content
 }
 
-impl Ofd {
-    pub fn from_xml(xml: &str) -> Result<Ofd, serde_xml_rs::Error> {
+pub struct Ofd {
+    pub node: OfdNode,
+    pub zip_archive: ZipArchive<BufReader<File>>,
+}
+
+impl OfdNode {
+    pub fn from_xml(xml: &str) -> Result<OfdNode, serde_xml_rs::Error> {
         serde_xml_rs::from_str(xml)
     }
 }

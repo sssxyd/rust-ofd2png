@@ -5,7 +5,7 @@ use std::io::{BufReader, Read};
 use zip::ZipArchive;
 
 use rofd::types::CT_PageArea;
-use rofd::ofd::Ofd;
+use rofd::ofd::{Ofd, OfdNode};
 use rofd::document::Document;
 use rofd::document_res::Res;
 use rofd::page::Page;
@@ -22,26 +22,32 @@ fn real_main() -> i32 {
         return 1;
     }
 
+    let mut ofd_node = OfdNode::default();
+    let mut document = Document::default();
+    let mut document_res = Res::default();
+
     let file = fs::File::open(&args[1]).unwrap();
     let reader = BufReader::new(file);
     let mut zip = ZipArchive::new(reader).unwrap();
-
-    let mut ofd = Ofd::default();
-    let mut document = Document::default();
-    let mut document_res = Res::default();
 
     {
         // find the OFD.xml file and parse the content to ofd object.
         let mut ofd_file = zip.by_name("OFD.xml").unwrap();
         let mut content = String::new();
         let _size = ofd_file.read_to_string(&mut content).unwrap();
-        ofd = Ofd::from_xml(&content).unwrap();
-        println!("ofd: {:#?}", ofd);
+        ofd_node = OfdNode::from_xml(&content).unwrap();
+        println!("ofd: {:#?}", ofd_node);
     }
+
+
+    let mut ofd = Ofd {
+        node: ofd_node,
+        zip_archive: zip,
+    };
 
     {
         // find the DocRoot file and parse the content to document object.
-        let mut doc_file = zip.by_name(ofd.doc_body.doc_root.as_str()).unwrap();
+        let mut doc_file = ofd.zip_archive.by_name(ofd.node.doc_body.doc_root.as_str()).unwrap();
         let mut content = String::new();
         let _size = doc_file.read_to_string(&mut content).unwrap();
         document = Document::from_xml(&content).unwrap();
@@ -50,38 +56,39 @@ fn real_main() -> i32 {
 
     {
         // find the DocumentRes.xml file and parse the content to document_res object.
-        let path = Path::new(ofd.doc_body.doc_root.as_str());
+        let path = Path::new(ofd.node.doc_body.doc_root.as_str());
         let res_path = &path.parent().unwrap().join(document.common_data.document_res.as_str());
-        let mut document_res_file = zip.by_name(res_path.to_str().unwrap()).unwrap();
+        let mut document_res_file = ofd.zip_archive.by_name(res_path.to_str().unwrap()).unwrap();
         let mut content = String::new();
         let _size = document_res_file.read_to_string(&mut content).unwrap();
         document_res = Res::from_xml(&content).unwrap();
         println!("document_res: {:#?}", document_res);
     }
 
-    // let pybox = CT_PageArea::from(document.common_data.page_area.physical_box.clone());
+    let pybox = CT_PageArea::from(document.common_data.page_area.physical_box.clone());
 
-    // let mut surface = cairo::ImageSurface::create(cairo::Format::ARgb32, pybox.width, pybox.height).unwrap();
-    // let mut context = cairo::Context::new(&surface).unwrap();
+    let mut surface = cairo::ImageSurface::create(cairo::Format::ARgb32, pybox.width, pybox.height).unwrap();
+    let mut context = cairo::Context::new(&surface).unwrap();
 
-    // document.render(&mut context);
+    for i in 0..document.pages.page.len() {
+        let page = &document.pages.page[i];
+        let mut content = String::new();
 
-    // for i in 0..document.pages.page.len() {
-    //     let page = &document.pages.page[i];
-    //     // concat basename of document.doc_body.doc_root and page.base_loc
-    //     let path = Path::new(ofd.doc_body.doc_root.as_str());
-    //     println!("{}", path.parent().unwrap().join(page.base_loc.as_ref().unwrap().as_str()).to_str().unwrap());
-    //     let mut page_file = zip.by_name(&path.parent().unwrap().join(page.base_loc.as_ref().unwrap().as_str()).to_str().unwrap()).unwrap();
-    //     let mut content = String::new();
-    //     let _size = page_file.read_to_string(&mut content).unwrap();
-    //     let page = Page::from_xml(&content).unwrap();
-    //     println!("page: {:#?}", page);
+        {
+            // concat basename of document.doc_body.doc_root and page.base_loc
+            let path = Path::new(ofd.node.doc_body.doc_root.as_str());
+            let mut page_file = ofd.zip_archive.by_name(&path.parent().unwrap().join(page.base_loc.as_ref().unwrap().as_str()).to_str().unwrap()).unwrap();
+            let _size = page_file.read_to_string(&mut content).unwrap();
+        }
 
-    //     page.render(&mut context);
-    // }
+        let mut page = Page::from_xml(&content).unwrap();
+        println!("page: {:#?}", page);
 
-    // let mut file = fs::File::create("target/out.png").unwrap();
-    // surface.write_to_png(&mut file).unwrap();
+        page.render(&mut context, &mut ofd, &mut document);
+    }
+
+    let mut file = fs::File::create("target/out.png").unwrap();
+    surface.write_to_png(&mut file).unwrap();
 
     0
 }
