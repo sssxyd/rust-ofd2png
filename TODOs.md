@@ -3,7 +3,6 @@
 
 - [ ] license headers
 - [ ] docs
-- [ ] ci
 
 
 ## features
@@ -25,3 +24,5 @@
 ## dev
 
 - [ ] publish it to crates.io
+- [ ] logging
+- [ ] ci

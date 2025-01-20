@@ -30,7 +30,7 @@ pub struct MultiMedias {
 #[serde(rename_all = "PascalCase")]
 pub struct MultiMedia {
     #[serde(rename = "ID")]
-    pub id: String,
+    pub id: u32,
     pub format: String,
     pub media_file: String,
 }

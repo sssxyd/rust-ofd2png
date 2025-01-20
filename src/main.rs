@@ -22,6 +22,7 @@ fn real_main() -> i32 {
         return 1;
     }
 
+    // TODO(hualet): these initializaiton really needed ?
     let mut ofd_node = OfdNode::default();
     let mut document = Document::default();
     let mut document_res = Res::default();
@@ -64,6 +65,7 @@ fn real_main() -> i32 {
         document_res = Res::from_xml(&content).unwrap();
         println!("document_res: {:#?}", document_res);
     }
+    document.res = document_res;
 
     let pybox = CT_PageArea::from(document.common_data.page_area.physical_box.clone());
 
@@ -82,7 +84,7 @@ fn real_main() -> i32 {
         }
 
         let mut page = Page::from_xml(&content).unwrap();
-        println!("page: {:#?}", page);
+        // println!("page: {:#?}", page);
 
         page.render(&mut context, &mut ofd, &mut document);
     }

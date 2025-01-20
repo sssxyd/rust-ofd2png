@@ -1,5 +1,7 @@
 use serde::{Deserialize};
 
+use crate::document_res::Res;
+
 /*
 <?xml version="1.0" encoding="UTF-8"?><ofd:Document xmlns:ofd="http://www.ofdspec.org/2016">
   <ofd:CommonData>
@@ -26,6 +28,9 @@ pub struct Document {
     pub pages: PageList,
     pub annotations: Option<String>,
     pub custom_tags: Option<String>,
+
+    #[serde(skip)]
+    pub res: Res,
 }
 
 #[derive(Deserialize, Debug, Default)]
