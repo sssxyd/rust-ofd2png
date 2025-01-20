@@ -2,51 +2,42 @@ use cairo;
 
 use crate::ofd::Ofd;
 use crate::document::Document;
-use crate::page::{Page, Event, PathObject, TextObject, ImageObject,Color};
+use crate::page::{Page, Event, PathObject, TextObject, ImageObject,
+    PageBlock, Color};
 
 use crate::types::CT_Box;
 use crate::types::CT_Color;
 
 pub trait Renderable {
-    fn render(&self, context: &mut cairo::Context, ofd: &mut Ofd, document: &mut Document);
+    fn render(&self, context: &mut cairo::Context,
+        ofd: &mut Ofd, document: &mut Document);
 }
 
 impl Renderable for Document {
-    fn render(&self, _context: &mut cairo::Context, _ofd: &mut Ofd, _document: &mut Document) {
+    fn render(&self, _context: &mut cairo::Context,
+        _ofd: &mut Ofd, _document: &mut Document) {
         println!("render document");
         // self.pages.page.iter().for_each(|p| p.render(context));
     }
 }
 
 impl Renderable for Page {
-    fn render(&self, context: &mut cairo::Context, ofd: &mut Ofd, document: &mut Document) {
+    fn render(&self, context: &mut cairo::Context,
+        ofd: &mut Ofd, document: &mut Document) {
         println!("render page");
-        for event in self.content.layer.events.iter() {
-            match event {
-                Event::PathObject(p) => {
-                    println!("render pathobject");
-                    p.render(context, ofd, document);
-                }
-                Event::TextObject(t) => {
-                    println!("render textobject");
-                    t.render(context, ofd, document);
-                }
-                Event::ImageObject(i) => {
-                    println!("render imageobject");
-                    i.render(context, ofd, document);
-                }
-                _ => {}
-            }
-        }
+        _render_page_block(self.content.layer.events.clone(),
+            context, ofd, document);
     }
 }
 
 impl Renderable for PathObject {
-    fn render(&self, context: &mut cairo::Context, ofd: &mut Ofd, document: &mut Document) {
+    fn render(&self, context: &mut cairo::Context,
+        ofd: &mut Ofd, document: &mut Document) {
         context.save();
 
         let boundary = CT_Box::from(self.boundary.clone());
-        let color = CT_Color::from(self.stroke_color.as_ref().unwrap().value.clone());
+        let color = CT_Color::from(
+            self.stroke_color.as_ref().unwrap().value.clone());
 
         context.set_source_rgb(color.value[0] as f64 / 255.0,
             color.value[1] as f64 / 255.0,
@@ -54,9 +45,12 @@ impl Renderable for PathObject {
         context.set_line_width(self.line_width);
 
         context.move_to(boundary.x as f64, boundary.y as f64);
-        context.line_to((boundary.x + boundary.width) as f64, boundary.y as f64);
-        context.line_to((boundary.x + boundary.width) as f64, (boundary.y + boundary.height) as f64);
-        context.line_to(boundary.x as f64, (boundary.y + boundary.height) as f64);
+        context.line_to((boundary.x + boundary.width) as f64,
+            boundary.y as f64);
+        context.line_to((boundary.x + boundary.width) as f64,
+            (boundary.y + boundary.height) as f64);
+        context.line_to(boundary.x as f64,
+            (boundary.y + boundary.height) as f64);
         context.line_to(boundary.x as f64, boundary.y as f64);
 
         context.stroke();
@@ -66,7 +60,8 @@ impl Renderable for PathObject {
 }
 
 impl Renderable for TextObject {
-    fn render(&self, context: &mut cairo::Context, ofd: &mut Ofd, document: &mut Document) {
+    fn render(&self, context: &mut cairo::Context,
+        ofd: &mut Ofd, document: &mut Document) {
         context.save();
 
         let boundary = CT_Box::from(self.boundary.clone());
@@ -91,7 +86,8 @@ impl Renderable for TextObject {
 
 // implement Renderable for ImageObject
 impl Renderable for ImageObject {
-    fn render(&self, context: &mut cairo::Context, ofd: &mut Ofd, document: &mut Document) {
+    fn render(&self, context: &mut cairo::Context,
+        ofd: &mut Ofd, document: &mut Document) {
         context.save();
 
         let boundary = CT_Box::from(self.boundary.clone());
@@ -114,5 +110,38 @@ impl Renderable for ImageObject {
 
 
         context.restore();
+    }
+}
+
+impl Renderable for PageBlock {
+    fn render(&self, context: &mut cairo::Context,
+        ofd: &mut Ofd, document: &mut Document) {
+        println!("render pageblock");
+        _render_page_block(self.events.clone(), context, ofd, document);
+    }
+}
+
+
+fn _render_page_block(events: Vec<Event>, context: &mut cairo::Context,
+    ofd: &mut Ofd, document: &mut Document) {
+    for event in events.iter() {
+        match event {
+            Event::PathObject(p) => {
+                println!("render pathobject");
+                p.render(context, ofd, document);
+            }
+            Event::TextObject(t) => {
+                println!("render textobject");
+                t.render(context, ofd, document);
+            }
+            Event::ImageObject(i) => {
+                println!("render imageobject");
+                i.render(context, ofd, document);
+            }
+            Event::PageBlock(p) => {
+                println!("render pageblock");
+                p.render(context, ofd, document);
+            }
+        }
     }
 }
