@@ -111,7 +111,10 @@ impl Renderable for ImageObject {
                 let _size = file.read_to_end(&mut content).unwrap();
 
                 let mut file_reader = std::io::Cursor::new(content);
+                // FIXME(hualet): png is not for sure.
                 let surface = cairo::ImageSurface::create_from_png(&mut file_reader).unwrap();
+                context.scale(boundary.width/ surface.width() as f64,
+                    boundary.height/ surface.height() as f64);
                 context.set_source_surface(&surface,
                     boundary.x as f64,
                     boundary.y as f64);
