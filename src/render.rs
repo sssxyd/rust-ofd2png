@@ -1,3 +1,7 @@
+use std::path::Path;
+use std::io::Cursor;
+use std::io::Read;
+
 use cairo;
 
 use crate::ofd::Ofd;
@@ -98,13 +102,21 @@ impl Renderable for ImageObject {
         // 3) load the image file and draw
         for resource in document.res.multi_medias.multi_media.iter() {
             if resource.id == self.resource_id {
-                println!("render image: {}", resource.media_file);
-                // let file = ofd.zip_archive.by_name(resource.media_file.as_str()).unwrap();
-                // let mut content = Vec::new();
-                // let _size = file.read_to_end(&mut content).unwrap();
-                // let surface = cairo::ImageSurface::from_data(&content, cairo::Format::Rgb24, boundary.width as i32, boundary.height as i32, boundary.width * 3);
-                // context.set_source_surface(&surface, boundary.x as f64, boundary.y as f64);
-                // context.paint();
+                let path = Path::new(ofd.node.doc_body.doc_root.as_str());
+                let res_path = &path.parent().unwrap()
+                    .join(document.res.base_loc.as_str())
+                    .join(resource.media_file.as_str());
+
+                let mut file = ofd.zip_archive.by_name(res_path.to_str().unwrap()).unwrap();
+                let mut content = Vec::new();
+                let _size = file.read_to_end(&mut content).unwrap();
+
+                let mut file_reader = std::io::Cursor::new(content);
+                let surface = cairo::ImageSurface::create_from_png(&mut file_reader).unwrap();
+                context.set_source_surface(&surface,
+                    boundary.x as f64,
+                    boundary.y as f64);
+                context.paint();
             }
         }
 
