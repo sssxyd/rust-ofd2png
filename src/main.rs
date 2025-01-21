@@ -67,9 +67,12 @@ fn real_main() -> i32 {
     }
     document.res = document_res;
 
-    let pybox = CT_PageArea::from(document.common_data.page_area.physical_box.clone());
+    let pybox = CT_PageArea::from(
+        document.common_data.page_area.physical_box.clone()).toPixel();
 
-    let mut surface = cairo::ImageSurface::create(cairo::Format::ARgb32, pybox.width, pybox.height).unwrap();
+    let mut surface = cairo::ImageSurface::create(
+        cairo::Format::ARgb32,
+        pybox.width as i32, pybox.height as i32).unwrap();
     let mut context = cairo::Context::new(&surface).unwrap();
 
     for i in 0..document.pages.page.len() {
@@ -79,7 +82,9 @@ fn real_main() -> i32 {
         {
             // concat basename of document.doc_body.doc_root and page.base_loc
             let path = Path::new(ofd.node.doc_body.doc_root.as_str());
-            let mut page_file = ofd.zip_archive.by_name(&path.parent().unwrap().join(page.base_loc.as_ref().unwrap().as_str()).to_str().unwrap()).unwrap();
+            let mut page_file = ofd.zip_archive.by_name(
+                &path.parent().unwrap().join(
+                page.base_loc.as_ref().unwrap().as_str()).to_str().unwrap()).unwrap();
             let _size = page_file.read_to_string(&mut content).unwrap();
         }
 
