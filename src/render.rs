@@ -3,43 +3,45 @@ use std::io::Cursor;
 use std::io::Read;
 
 use cairo;
+use cairo::Error;
 
 use crate::ofd::Ofd;
 use crate::document::Document;
 use crate::page::{Page, Event, PathObject, TextObject, ImageObject,
     PageBlock, Color};
 
-use crate::types::{CT_Box, CT_Color, mmtopx};
+use crate::types::{mmtopx, ct};
 
 pub trait Renderable {
     fn render(&self, context: &mut cairo::Context,
-        ofd: &mut Ofd, document: &Document);
+        ofd: &mut Ofd, document: &Document) -> Result<(), Error>;
 }
 
 impl Renderable for Document {
     fn render(&self, _context: &mut cairo::Context,
-        _ofd: &mut Ofd, _document: &Document) {
+        _ofd: &mut Ofd, _document: &Document) -> Result<(), Error> {
         println!("render document");
+        Ok(())
         // self.pages.page.iter().for_each(|p| p.render(context));
     }
 }
 
 impl Renderable for Page {
     fn render(&self, context: &mut cairo::Context,
-        ofd: &mut Ofd, document: &Document) {
+        ofd: &mut Ofd, document: &Document) -> Result<(), Error> {
         println!("render page");
         _render_page_block(self.content.layer.events.clone(),
-            context, ofd, document);
+            context, ofd, document)
     }
 }
 
 impl Renderable for PathObject {
     fn render(&self, context: &mut cairo::Context,
-        ofd: &mut Ofd, document: &Document) {
-        context.save();
+        _ofd: &mut Ofd, _document: &Document) -> Result<(), Error> {
+        context.save()?;
 
-        let boundary = CT_Box::from(self.boundary.clone()).toPixel();
-        let color = CT_Color::from(
+        let boundary = ct::Box::from(self.boundary.clone()).to_pixel();
+        let color = ct::Color::from(
             self.stroke_color.as_ref().unwrap().value.clone());
 
         context.set_source_rgb(color.value[0] as f64 / 255.0,
@@ -56,20 +58,20 @@ impl Renderable for PathObject {
             (boundary.y + boundary.height) as f64);
         context.line_to(boundary.x as f64, boundary.y as f64);
 
-        context.stroke();
+        context.stroke()?;
 
-        context.restore();
+        context.restore()
     }
 }
 
 impl Renderable for TextObject {
     fn render(&self, context: &mut cairo::Context,
-        ofd: &mut Ofd, document: &Document) {
-        context.save();
+        _ofd: &mut Ofd, document: &Document) -> Result<(), Error> {
+        context.save()?;
 
-        let boundary = CT_Box::from(self.boundary.clone()).toPixel();
+        let boundary = ct::Box::from(self.boundary.clone()).to_pixel();
         let color = self.fill_color.as_ref().unwrap_or(&Color::default()).value.clone();
-        let fill_color = CT_Color::from(color);
+        let fill_color = ct::Color::from(color);
 
         let font_id = self.font;
         for font in document.public_res.fonts.font.iter() {
@@ -86,10 +88,10 @@ impl Renderable for TextObject {
             fill_color.value[1] as f64 / 255.0,
             fill_color.value[2] as f64 / 255.0);
         context.move_to(boundary.x as f64, boundary.y as f64);
-        context.show_text(self.text_code.value.as_str());
+        context.show_text(self.text_code.value.as_str())?;
 
 
-        context.restore();
+        context.restore()
 
     }
 }
@@ -97,10 +99,10 @@ impl Renderable for TextObject {
 // implement Renderable for ImageObject
 impl Renderable for ImageObject {
     fn render(&self, context: &mut cairo::Context,
-        ofd: &mut Ofd, document: &Document) {
-        context.save();
+        ofd: &mut Ofd, document: &Document) -> Result<(), Error> {
+        context.save()?;
 
-        let boundary = CT_Box::from(self.boundary.clone()).toPixel();
+        let boundary = ct::Box::from(self.boundary.clone()).to_pixel();
 
         // find the image file:
         // 1) find the resource file in DocumentRes with the resource id
@@ -117,52 +119,54 @@ impl Renderable for ImageObject {
                 let mut content = Vec::new();
                 let _size = file.read_to_end(&mut content).unwrap();
 
-                let mut file_reader = std::io::Cursor::new(content);
+                let mut file_reader = Cursor::new(content);
                 // FIXME(hualet): png is not for sure.
                 let surface = cairo::ImageSurface::create_from_png(&mut file_reader).unwrap();
                 context.scale(boundary.width/ surface.width() as f64,
                     boundary.height/ surface.height() as f64);
                 context.set_source_surface(&surface,
                     boundary.x as f64,
-                    boundary.y as f64);
-                context.paint();
+                    boundary.y as f64)?;
+                context.paint()?;
             }
         }
 
 
-        context.restore();
+        context.restore()
     }
 }
 
 impl Renderable for PageBlock {
     fn render(&self, context: &mut cairo::Context,
-        ofd: &mut Ofd, document: &Document) {
+        ofd: &mut Ofd, document: &Document) -> Result<(), Error> {
         println!("render pageblock");
-        _render_page_block(self.events.clone(), context, ofd, document);
+        _render_page_block(self.events.clone(), context, ofd, document)
     }
 }
 
 
 fn _render_page_block(events: Vec<Event>, context: &mut cairo::Context,
-    ofd: &mut Ofd, document: &Document) {
+    ofd: &mut Ofd, document: &Document) -> Result<(), Error> {
     for event in events.iter() {
         match event {
             Event::PathObject(p) => {
                 println!("render pathobject");
-                p.render(context, ofd, document);
+                return p.render(context, ofd, document)
             }
             Event::TextObject(t) => {
                 println!("render textobject");
-                t.render(context, ofd, document);
+                return t.render(context, ofd, document)
             }
             Event::ImageObject(i) => {
                 println!("render imageobject");
-                i.render(context, ofd, document);
+                return i.render(context, ofd, document)
             }
             Event::PageBlock(p) => {
                 println!("render pageblock");
-                p.render(context, ofd, document);
+                return p.render(context, ofd, document)
             }
         }
     }
+
+    Ok(())
 }

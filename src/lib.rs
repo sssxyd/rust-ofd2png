@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 mod document;
 mod ofd;
 mod page;
@@ -15,7 +17,7 @@ use document::{Document, DocumentRes, PublicRes};
 use ofd::{Ofd, OfdNode};
 use page::Page;
 use render::Renderable;
-use types::CT_PageArea;
+use types::ct;
 
 pub fn read_ofd(file_path: &str) -> Result<Ofd, Box<dyn Error>> {
     let file = File::open(file_path)?;
@@ -90,7 +92,7 @@ pub fn export_ofd_to_png(ofd: &mut Ofd, output_path: &str) -> Result<(), Box<dyn
     document.public_res = public_res;
 
     // Create a cairo surface and context.
-    let pybox = CT_PageArea::from(document.common_data.page_area.physical_box.clone()).toPixel();
+    let pybox = ct::PageArea::from(document.common_data.page_area.physical_box.clone()).to_pixel();
     let surface = cairo::ImageSurface::create(
         cairo::Format::ARgb32,
         pybox.width as i32,
@@ -119,7 +121,7 @@ pub fn export_ofd_to_png(ofd: &mut Ofd, output_path: &str) -> Result<(), Box<dyn
             page_file.read_to_string(&mut content)?;
         }
         let page = Page::from_xml(&content)?;
-        page.render(&mut context, ofd, &document);
+        page.render(&mut context, ofd, &document)?;
     }
 
     let mut file = File::create(output_path)?;
