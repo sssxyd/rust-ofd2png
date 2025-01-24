@@ -11,7 +11,7 @@ use std::path::Path;
 
 use zip::ZipArchive;
 
-use document::{Document, DocumentRes};
+use document::{Document, DocumentRes, PublicRes};
 use ofd::{Ofd, OfdNode};
 use page::Page;
 use render::Renderable;
@@ -55,7 +55,7 @@ pub fn export_ofd_to_png(ofd: &mut Ofd, output_path: &str) -> Result<(), Box<dyn
     let mut document = Document::from_xml(&content)?;
     println!("document: {:#?}", document);
 
-    // Find the DocumentRes.xml file and parse the content to a document_res object.
+    // Find the DocumentRes.xml file and parse the content to a DocumentRes object.
     {
         let doc_root_path = ofd.node.doc_body.doc_root.as_str();
         let root_path = Path::new(doc_root_path);
@@ -70,7 +70,24 @@ pub fn export_ofd_to_png(ofd: &mut Ofd, output_path: &str) -> Result<(), Box<dyn
 
     let document_res = DocumentRes::from_xml(&content)?;
     println!("document_res: {:#?}", document_res);
-    document.res = document_res;
+    document.doc_res = document_res;
+
+    // Find the PublicRes.xml file and parse the content to a PublicRes object.
+    {
+        let doc_root_path = ofd.node.doc_body.doc_root.as_str();
+        let root_path = Path::new(doc_root_path);
+        let res_path = root_path
+                        .parent().ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "Parent directory not found"))?
+                        .join(document.common_data.public_res.as_str());
+        let mut public_res_file = ofd.zip_archive.by_name(res_path.to_str().unwrap())?;
+
+        content.clear();
+        public_res_file.read_to_string(&mut content)?;
+    }
+
+    let public_res = PublicRes::from_xml(&content)?;
+    println!("public_res: {:#?}", public_res);
+    document.public_res = public_res;
 
     // Create a cairo surface and context.
     let pybox = CT_PageArea::from(document.common_data.page_area.physical_box.clone()).toPixel();

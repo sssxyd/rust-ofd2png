@@ -28,7 +28,9 @@ pub struct Document {
     pub custom_tags: Option<String>,
 
     #[serde(skip)]
-    pub res: DocumentRes,
+    pub doc_res: DocumentRes,
+    #[serde(skip)]
+    pub public_res: PublicRes,
 }
 
 #[derive(Deserialize, Debug, Default)]
@@ -108,6 +110,45 @@ pub struct MultiMedia {
 
 impl DocumentRes {
     pub fn from_xml(xml: &str) -> Result<DocumentRes, serde_xml_rs::Error> {
+        serde_xml_rs::from_str(xml)
+    }
+}
+
+
+/* PublicRes.xml
+<?xml version="1.0" encoding="UTF-8"?><ofd:Res xmlns:ofd="http://www.ofdspec.org/2016" BaseLoc="Res">
+  <ofd:Fonts>
+    <ofd:Font FamilyName="宋体" FontName="宋体" ID="3"/>
+    <ofd:Font FamilyName="楷体" FontName="楷体" ID="5"/>
+    <ofd:Font FamilyName="Courier New" FontName="Courier New" ID="7"/>
+  </ofd:Fonts>
+</ofd:Res>
+*/
+
+#[derive(Deserialize, Debug, Default)]
+#[serde(rename_all = "PascalCase")]
+pub struct PublicRes {
+    pub base_loc: String,
+    pub fonts: Fonts,
+}
+
+#[derive(Deserialize, Debug, Default)]
+#[serde(rename_all = "PascalCase")]
+pub struct Fonts {
+    pub font: Vec<Font>,
+}
+
+#[derive(Deserialize, Debug, Default)]
+#[serde(rename_all = "PascalCase")]
+pub struct Font {
+    #[serde(rename = "ID")]
+    pub id: u32,
+    pub family_name: String,
+    pub font_name: String,
+}
+
+impl PublicRes {
+    pub fn from_xml(xml: &str) -> Result<PublicRes, serde_xml_rs::Error> {
         serde_xml_rs::from_str(xml)
     }
 }

@@ -71,8 +71,15 @@ impl Renderable for TextObject {
         let color = self.fill_color.as_ref().unwrap_or(&Color::default()).value.clone();
         let fill_color = CT_Color::from(color);
 
-        // TODO(hualet): load the right font
-        context.select_font_face("Sans", cairo::FontSlant::Normal, cairo::FontWeight::Normal);
+        let font_id = self.font;
+        for font in document.public_res.fonts.font.iter() {
+            if font.id == font_id {
+                // TODO(hualet): custom font file loading.
+                context.select_font_face(font.family_name.as_str(),
+                    cairo::FontSlant::Normal, cairo::FontWeight::Normal);
+                break;
+            }
+        }
         context.set_font_size(mmtopx(self.size) as f64);
 
         context.set_source_rgb(fill_color.value[0] as f64 / 255.0,
@@ -99,11 +106,11 @@ impl Renderable for ImageObject {
         // 1) find the resource file in DocumentRes with the resource id
         // 2) construct the path of the image file
         // 3) load the image file and draw
-        for resource in document.res.multi_medias.multi_media.iter() {
+        for resource in document.doc_res.multi_medias.multi_media.iter() {
             if resource.id == self.resource_id {
                 let path = Path::new(ofd.node.doc_body.doc_root.as_str());
                 let res_path = &path.parent().unwrap()
-                    .join(document.res.base_loc.as_str())
+                    .join(document.doc_res.base_loc.as_str())
                     .join(resource.media_file.as_str());
 
                 let mut file = ofd.zip_archive.by_name(res_path.to_str().unwrap()).unwrap();
