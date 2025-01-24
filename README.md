@@ -13,7 +13,13 @@ I'm still learning Rust and OFD spec by creating this project, so the lib is not
 To try the current achivements, you can run the following command:
 
 ```bash
-cargo run ./learning/test.ofd
+cargo test
+```
+
+and
+
+```bash
+open target/out.png
 ```
 
 next steps: [TODOs.md](TODOs.md)
