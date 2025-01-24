@@ -1,5 +1,4 @@
 mod document;
-mod document_res;
 mod ofd;
 mod page;
 mod render;
@@ -12,8 +11,7 @@ use std::path::Path;
 
 use zip::ZipArchive;
 
-use document::Document;
-use document_res::Res;
+use document::{Document, DocumentRes};
 use ofd::{Ofd, OfdNode};
 use page::Page;
 use render::Renderable;
@@ -70,7 +68,7 @@ pub fn export_ofd_to_png(ofd: &mut Ofd, output_path: &str) -> Result<(), Box<dyn
         document_res_file.read_to_string(&mut content)?;
     }
 
-    let document_res = Res::from_xml(&content)?;
+    let document_res = DocumentRes::from_xml(&content)?;
     println!("document_res: {:#?}", document_res);
     document.res = document_res;
 
