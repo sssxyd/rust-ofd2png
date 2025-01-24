@@ -150,20 +150,28 @@ fn _render_page_block(events: Vec<Event>, context: &mut cairo::Context,
     for event in events.iter() {
         match event {
             Event::PathObject(p) => {
-                println!("render pathobject");
-                return p.render(context, ofd, document)
+                match p.render(context, ofd, document) {
+                    Ok(_) => (),
+                    Err(e) => return Err(e),
+                }
             }
             Event::TextObject(t) => {
-                println!("render textobject");
-                return t.render(context, ofd, document)
+                match t.render(context, ofd, document) {
+                    Ok(_) => (),
+                    Err(e) => return Err(e),
+                }
             }
             Event::ImageObject(i) => {
-                println!("render imageobject");
-                return i.render(context, ofd, document)
+                match i.render(context, ofd, document) {
+                    Ok(_) => (),
+                    Err(e) => return Err(e),
+                }
             }
             Event::PageBlock(p) => {
-                println!("render pageblock");
-                return p.render(context, ofd, document)
+                match p.render(context, ofd, document) {
+                    Ok(_) => (),
+                    Err(e) => return Err(e),
+                }
             }
         }
     }
