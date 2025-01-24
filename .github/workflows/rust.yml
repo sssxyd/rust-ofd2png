@@ -16,8 +16,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-      with:
-        packages: build-essential pkg-config libglib2.0-dev
+    - name: Setup
+      run: |
+        sudo apt install -y build-essential libglib2.0-dev
     - name: Build
       run: cargo build --verbose
     - name: Run tests
