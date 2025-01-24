@@ -87,12 +87,11 @@ impl Renderable for TextObject {
         context.set_source_rgb(fill_color.value[0] as f64 / 255.0,
             fill_color.value[1] as f64 / 255.0,
             fill_color.value[2] as f64 / 255.0);
-        context.move_to(boundary.x as f64, boundary.y as f64);
+        context.move_to(boundary.x as f64 + mmtopx(self.text_code.x),
+            boundary.y as f64 + mmtopx(self.text_code.y));
         context.show_text(self.text_code.value.as_str())?;
 
-
         context.restore()
-
     }
 }
 
