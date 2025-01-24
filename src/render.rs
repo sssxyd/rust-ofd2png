@@ -7,8 +7,8 @@ use cairo::Error;
 
 use crate::ofd::Ofd;
 use crate::document::Document;
-use crate::page::{Page, Event, PathObject, TextObject, ImageObject,
-    PageBlock, Color};
+use crate::page::Page;
+use crate::elements::*;
 
 use crate::types::{mmtopx, ct};
 

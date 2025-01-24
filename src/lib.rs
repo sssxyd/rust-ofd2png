@@ -5,6 +5,7 @@ mod ofd;
 mod page;
 mod render;
 mod types;
+mod elements;
 
 use std::error::Error;
 use std::fs::File;
@@ -13,7 +14,7 @@ use std::path::Path;
 
 use zip::ZipArchive;
 
-use document::{Document, DocumentRes, PublicRes};
+use document::{Document, DocumentRes, PublicRes, Annotations, PageAnnot};
 use ofd::{Ofd, OfdNode};
 use page::Page;
 use render::Renderable;
@@ -90,6 +91,42 @@ pub fn export_ofd_to_png(ofd: &mut Ofd, output_path: &str) -> Result<(), Box<dyn
     let public_res = PublicRes::from_xml(&content)?;
     println!("public_res: {:#?}", public_res);
     document.public_res = public_res;
+
+    // Find the Annotations.xml file and parse the content to a Annotations object.
+    {
+        let doc_root_path = ofd.node.doc_body.doc_root.as_str();
+        let root_path = Path::new(doc_root_path);
+        let annots_path = root_path
+                        .parent().ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "Parent directory not found"))?
+                        .join(document.annotations.clone().unwrap());
+        let mut annotations_file = ofd.zip_archive.by_name(annots_path.to_str().unwrap())?;
+
+        content.clear();
+        annotations_file.read_to_string(&mut content)?;
+    }
+
+    let annotations = Annotations::from_xml(&content)?;
+    println!("annotations: {:#?}", annotations);
+
+    {
+        for page_annot in annotations.page.iter() {
+            let doc_root_path = ofd.node.doc_body.doc_root.as_str();
+            // let annots_root_path = Path::new(annots_path.as_str()).parent().unwrap();
+            let root_path = Path::new(doc_root_path);
+            let annot_path = root_path
+                                .parent()
+                                .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "Parent directory not found"))?
+                                .join("Annots") // TODO(hualet): hardcoded
+                                .join(page_annot.file_loc.as_str());
+            let mut annot_file = ofd.zip_archive.by_name(annot_path.to_str().unwrap())?;
+            content.clear();
+            annot_file.read_to_string(&mut content)?;
+            let page_annot = PageAnnot::from_xml(&content)?;
+            println!("page_annot: {:#?}", page_annot);
+        }
+    }
+
+
 
     // Create a cairo surface and context.
     let pybox = ct::PageArea::from(document.common_data.page_area.physical_box.clone()).to_pixel();

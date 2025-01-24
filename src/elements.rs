@@ -1,3 +1,5 @@
+use serde::Deserialize;
+
 /*
 <?xml version="1.0" encoding="UTF-8"?><ofd:Page xmlns:ofd="http://www.ofdspec.org/2016">
   <ofd:Area>
@@ -318,42 +320,111 @@
 </ofd:Page>
 */
 
-use serde::Deserialize;
-
-use crate::elements::*;
-
-#[derive(Deserialize, Debug)]
+#[derive(Debug, Deserialize, Clone)]
 #[serde(rename_all = "PascalCase")]
-pub struct Page {
-    pub area: Area,
-    pub content: Content,
-
-    #[serde(skip)]
-    pub annotations: Vec<Annot>,
+pub enum Event {
+    PathObject(PathObject),
+    TextObject(TextObject),
+    PageBlock(PageBlock),
+    ImageObject(ImageObject),
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Debug, Deserialize, Clone)]
 #[serde(rename_all = "PascalCase")]
-pub struct Area {
-    pub physical_box: String,
-    pub application_box: String,
+pub struct PathObject {
+    #[serde(rename = "ID")]
+    pub id: u32,
+    pub boundary: String,
+    pub line_width: f64,
+    pub stroke: Option<bool>,
+    pub stroke_color: Option<Color>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Debug, Deserialize, Clone)]
 #[serde(rename_all = "PascalCase")]
-pub struct Content {
-    pub layer: Layer,
+pub struct Color {
+    pub value: String,
+    pub alpha: Option<f64>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Debug, Deserialize, Clone)]
 #[serde(rename_all = "PascalCase")]
-pub struct Layer {
+pub struct ImageObject {
+    #[serde(rename = "ID")]
+    pub id: u32,
+    pub boundary: String,
+    #[serde(rename = "CTM")]
+    pub ctm: String,
+    #[serde(rename = "ResourceID")]
+    pub resource_id: u32,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+#[serde(rename_all = "PascalCase")]
+pub struct PageBlock {
+    #[serde(rename = "ID")]
+    pub id: u32,
     #[serde(rename = "$value")]
-    pub events: Vec<Event>,
+    pub(crate)events: Vec<Event>,
 }
 
-impl Page {
-    pub fn from_xml(xml: &str) -> Result<Page, serde_xml_rs::Error> {
-        serde_xml_rs::from_str(xml)
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "PascalCase")]
+pub struct TextObject {
+    #[serde(rename = "ID")]
+    pub id: u32,
+    pub boundary: String,
+    pub font: u32,
+    pub size: f64,
+    pub fill_color: Option<Color>,
+    pub text_code: TextCode,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+#[serde(rename_all = "PascalCase")]
+pub struct TextCode {
+    pub x: f64,
+    pub y: f64,
+    pub delta_x: Option<String>,
+    #[serde(rename = "$value")]
+    pub value: String,
+}
+
+impl Default for Color {
+    fn default() -> Self {
+        Color {
+            value: "0 0 0".to_string(),
+            alpha: Some(255.0),
+        }
     }
+}
+
+
+/* Annot_0.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<ofd:PageAnnot xmlns:ofd="http://www.ofdspec.org/2016">
+  <ofd:Annot Type="Stamp" Creator="OFD R&amp;W" LastModDate="2024-10-22" ID="173">
+    <ofd:Appearance Boundary="87.50 8.50 30 20">
+      <ofd:ImageObject ID="175" ResourceID="174" Boundary="0 0 30 20" CTM="30 0 0 20 0 0"/>
+    </ofd:Appearance>
+  </ofd:Annot>
+</ofd:PageAnnot>
+*/
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "PascalCase")]
+pub struct Annot {
+    #[serde(rename = "ID")]
+    pub id: u32,
+    pub r#type: String,
+    pub creator: String,
+    pub last_mod_date: String,
+    pub appearance: Appearance,
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "PascalCase")]
+pub struct Appearance {
+    pub boundary: String,
+    pub image_object: ImageObject,
 }

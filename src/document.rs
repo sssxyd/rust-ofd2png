@@ -1,5 +1,7 @@
 use serde::{Deserialize};
 
+use crate::elements::*;
+
 /* Document.xml
 <?xml version="1.0" encoding="UTF-8"?><ofd:Document xmlns:ofd="http://www.ofdspec.org/2016">
   <ofd:CommonData>
@@ -149,6 +151,61 @@ pub struct Font {
 
 impl PublicRes {
     pub fn from_xml(xml: &str) -> Result<PublicRes, serde_xml_rs::Error> {
+        serde_xml_rs::from_str(xml)
+    }
+}
+
+
+/* Annotations.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<ofd:Annotations xmlns:ofd="http://www.ofdspec.org/2016">
+  <ofd:Page PageID="1">
+    <ofd:FileLoc>Page_0/Annot_0.xml</ofd:FileLoc>
+  </ofd:Page>
+</ofd:Annotations>
+*/
+
+#[derive(Deserialize, Debug, Default)]
+#[serde(rename_all = "PascalCase")]
+pub struct Annotations {
+    pub page: Vec<AnnotationPageNode>,
+}
+
+#[derive(Deserialize, Debug, Default)]
+#[serde(rename_all = "PascalCase")]
+pub struct AnnotationPageNode {
+    #[serde(rename = "PageID")]
+    pub page_id: u32,
+    #[serde(rename = "$value")]
+    pub file_loc: String,
+}
+
+impl Annotations {
+    pub fn from_xml(xml: &str) -> Result<Annotations, serde_xml_rs::Error> {
+        serde_xml_rs::from_str(xml)
+    }
+}
+
+
+/* Annot_0.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<ofd:PageAnnot xmlns:ofd="http://www.ofdspec.org/2016">
+  <ofd:Annot Type="Stamp" Creator="OFD R&amp;W" LastModDate="2024-10-22" ID="173">
+    <ofd:Appearance Boundary="87.50 8.50 30 20">
+      <ofd:ImageObject ID="175" ResourceID="174" Boundary="0 0 30 20" CTM="30 0 0 20 0 0"/>
+    </ofd:Appearance>
+  </ofd:Annot>
+</ofd:PageAnnot>
+*/
+
+#[derive(Deserialize, Debug, Default)]
+#[serde(rename_all = "PascalCase")]
+pub struct PageAnnot {
+    pub annot: Vec<Annot>,
+}
+
+impl PageAnnot {
+    pub fn from_xml(xml: &str) -> Result<PageAnnot, serde_xml_rs::Error> {
         serde_xml_rs::from_str(xml)
     }
 }
