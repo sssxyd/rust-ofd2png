@@ -16,6 +16,8 @@ To try the current achivements, you can run the following command:
 cargo run ./learning/test.ofd
 ```
 
+next steps: [TODOs.md](TODOs.md)
+
 # reference projects
 
 - [ofdrw](https://github.com/ofdrw/ofdrw)
