@@ -4,14 +4,23 @@
 <p align="center"></p>
 
 
-## Introduction
+# Introduction
 
 OFD (Open Form Document) is an open standard for electronic documents, which is widely used in China. Unlike PDF, which is a layout-based format, OFD is a semantic-based format, which means it stores the document structure and text information separately. This makes OFD documents more flexible and easier to edit than PDFs. OFD also supports more features than PDF, such as form filling and digital signatures.
 
 
-# plan
+# Plan
 
-I'm still learning Rust and OFD spec by creating this project, so the lib is not first priority at the moment, I just want the parser and renderer to work.
+Current achivements:
+
+- [x] learning
+    - [x] Rust (basic syntax, types, traits, etc), notes [here](learning/notes.md)
+    - [x] OFD spec (basic structure and elements)
+- [x] parsing OFD files
+- [x] drawing text, images, simple paths
+- [x] rendering to png
+
+Next steps: [TODOs.md](TODOs.md)
 
 To try the current achivements, you can run the following command:
 
@@ -25,9 +34,8 @@ and
 open target/out.png
 ```
 
-next steps: [TODOs.md](TODOs.md)
 
-# reference projects
+# Reference projects
 
 - [ofdrw](https://github.com/ofdrw/ofdrw)
 - [ofd-parser](https://github.com/jyh2012/ofd-parser)
