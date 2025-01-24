@@ -1,7 +1,10 @@
-# rofd
-OFD parser and renderer library, in Rust.
+<p align="center"><img width="128" height="128" src="./resources/logo.png" alt="logo"></p>
 
-What is OFD?
+<p align="center">rofd </br> OFD parser and renderer library, in Rust.</p>
+<p align="center"></p>
+
+
+## Introduction
 
 OFD (Open Form Document) is an open standard for electronic documents, which is widely used in China. Unlike PDF, which is a layout-based format, OFD is a semantic-based format, which means it stores the document structure and text information separately. This makes OFD documents more flexible and easier to edit than PDFs. OFD also supports more features than PDF, such as form filling and digital signatures.
 
