@@ -12,6 +12,8 @@ use std::fs::File;
 use std::io::{self, Read};
 use std::path::Path;
 
+use log::debug;
+
 use zip::ZipArchive;
 
 use document::{Document, DocumentRes, PublicRes, Annotations, PageAnnot};
@@ -56,7 +58,7 @@ pub fn export_ofd_to_png(ofd: &mut Ofd, output_path: &str) -> Result<(), Box<dyn
     }
 
     let mut document = Document::from_xml(&content)?;
-    println!("document: {:#?}", document);
+    debug!("document: {:#?}", document);
 
     // Find the DocumentRes.xml file and parse the content to a DocumentRes object.
     {
@@ -72,7 +74,7 @@ pub fn export_ofd_to_png(ofd: &mut Ofd, output_path: &str) -> Result<(), Box<dyn
     }
 
     let document_res = DocumentRes::from_xml(&content)?;
-    println!("document_res: {:#?}", document_res);
+    debug!("document_res: {:#?}", document_res);
     document.doc_res = document_res;
 
     // Find the PublicRes.xml file and parse the content to a PublicRes object.
@@ -89,7 +91,7 @@ pub fn export_ofd_to_png(ofd: &mut Ofd, output_path: &str) -> Result<(), Box<dyn
     }
 
     let public_res = PublicRes::from_xml(&content)?;
-    println!("public_res: {:#?}", public_res);
+    debug!("public_res: {:#?}", public_res);
     document.public_res = public_res;
 
     // Find the Annotations.xml file and parse the content to a Annotations object.
@@ -106,7 +108,7 @@ pub fn export_ofd_to_png(ofd: &mut Ofd, output_path: &str) -> Result<(), Box<dyn
     }
 
     let annotations = Annotations::from_xml(&content)?;
-    println!("annotations: {:#?}", annotations);
+    debug!("annotations: {:#?}", annotations);
 
     {
         for page_annot in annotations.page.iter() {
@@ -122,7 +124,7 @@ pub fn export_ofd_to_png(ofd: &mut Ofd, output_path: &str) -> Result<(), Box<dyn
             content.clear();
             annot_file.read_to_string(&mut content)?;
             let page_annot = PageAnnot::from_xml(&content)?;
-            println!("page_annot: {:#?}", page_annot);
+            debug!("page_annot: {:#?}", page_annot);
         }
     }
 
@@ -172,13 +174,13 @@ mod tests {
     #[test]
     fn test_read_ofd() {
         let ofd_node = read_ofd("./learning/test.ofd").unwrap();
-        println!("ofd: {:?}", ofd_node);
+        debug!("ofd: {:?}", ofd_node);
     }
 
     #[test]
     fn test_export_ofd_to_png() {
         let mut ofd_node = read_ofd("./learning/test.ofd").unwrap();
-        println!("ofd: {:?}", ofd_node);
+        debug!("ofd: {:?}", ofd_node);
         export_ofd_to_png(&mut ofd_node, "target/out.png").unwrap();
     }
 }

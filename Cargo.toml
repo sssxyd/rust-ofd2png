@@ -9,6 +9,7 @@ license = "MIT"
 
 [dependencies]
 cairo-rs = { version = "0.20.7", features = ["png"] }
+log = "0.4.25"
 serde = { version = "1.0.217", features = ["derive"] }
 serde-xml-rs = "0.6.0"
 zip = "2.2.2"

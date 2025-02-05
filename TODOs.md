@@ -24,7 +24,7 @@
 ## dev
 
 - [ ] publish it to crates.io
-- [ ] logging
+- [x] logging
 - [x] ci
 
 ## perf

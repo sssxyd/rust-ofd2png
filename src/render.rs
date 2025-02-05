@@ -2,6 +2,8 @@ use std::path::Path;
 use std::io::Cursor;
 use std::io::Read;
 
+use log::debug;
+
 use cairo;
 use cairo::Error;
 
@@ -20,7 +22,7 @@ pub trait Renderable {
 impl Renderable for Document {
     fn render(&self, _context: &mut cairo::Context,
         _ofd: &mut Ofd, _document: &Document) -> Result<(), Error> {
-        println!("render document");
+        debug!("render document");
         Ok(())
         // self.pages.page.iter().for_each(|p| p.render(context));
     }
@@ -29,7 +31,7 @@ impl Renderable for Document {
 impl Renderable for Page {
     fn render(&self, context: &mut cairo::Context,
         ofd: &mut Ofd, document: &Document) -> Result<(), Error> {
-        println!("render page");
+        debug!("render page");
         _render_page_block(self.content.layer.events.clone(),
             context, ofd, document)
     }
@@ -138,7 +140,7 @@ impl Renderable for ImageObject {
 impl Renderable for PageBlock {
     fn render(&self, context: &mut cairo::Context,
         ofd: &mut Ofd, document: &Document) -> Result<(), Error> {
-        println!("render pageblock");
+        debug!("render pageblock");
         _render_page_block(self.events.clone(), context, ofd, document)
     }
 }
