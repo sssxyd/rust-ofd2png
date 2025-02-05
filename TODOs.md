@@ -25,4 +25,8 @@
 
 - [ ] publish it to crates.io
 - [ ] logging
-- [ ] ci
+- [x] ci
+
+## perf
+
+- [ ] benchmarks comparing other implementations
