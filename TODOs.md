@@ -20,6 +20,7 @@
     - [x] PathObject
     - [ ] ImageObject
     - [ ] PageBlock
+- [ ] GUI application
 
 ## dev
 
