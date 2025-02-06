@@ -1,17 +1,10 @@
-use rofd::*;
-
 use env_logger;
 
 use gtk::{glib, prelude::*};
 
-// fn main() {
-//     env_logger::init();
-//     let mut ofd_node = read_ofd("learning/test.ofd").unwrap();
-//     export_ofd_to_png(&mut ofd_node, "target/out.png").unwrap();
-// }
-
 
 mod widgets {
+    use rofd::*;
     use gtk::{gdk, glib, graphene, gsk, prelude::*, subclass::prelude::*};
 
     glib::wrapper! {
@@ -53,7 +46,13 @@ mod widgets {
             let fill_path = path_builder.to_path();
 
             snapshot.push_fill(&fill_path, gsk::FillRule::Winding);
-            snapshot.append_color(&fill_color, &bounds);
+
+
+            let mut context = snapshot.append_cairo(&bounds);
+            let mut ofd_node = read_ofd("learning/test.ofd").unwrap();
+            render_ofd_to_context(&mut ofd_node, &mut context).unwrap();
+
+
             snapshot.pop();
         }
     }

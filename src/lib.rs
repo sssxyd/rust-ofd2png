@@ -20,7 +20,7 @@ use document::{Document, DocumentRes, PublicRes, Annotations, PageAnnot};
 use ofd::{Ofd, OfdNode};
 use page::Page;
 use render::Renderable;
-use types::ct;
+// use types::ct;
 
 pub fn read_ofd(file_path: &str) -> Result<Ofd, Box<dyn Error>> {
     let file = File::open(file_path)?;
@@ -46,7 +46,7 @@ pub fn read_ofd(file_path: &str) -> Result<Ofd, Box<dyn Error>> {
     Ok(ofd_result)
 }
 
-pub fn export_ofd_to_png(ofd: &mut Ofd, output_path: &str) -> Result<(), Box<dyn Error>> {
+pub fn render_ofd_to_context(ofd: &mut Ofd, context: &mut cairo::Context) -> Result<(), Box<dyn Error>> {
     // create a new String to store the content of the DocRoot file.
     let mut content = String::new();
 
@@ -128,17 +128,7 @@ pub fn export_ofd_to_png(ofd: &mut Ofd, output_path: &str) -> Result<(), Box<dyn
         }
     }
 
-
-
-    // Create a cairo surface and context.
-    let pybox = ct::PageArea::from(document.common_data.page_area.physical_box.clone()).to_pixel();
-    let surface = cairo::ImageSurface::create(
-        cairo::Format::ARgb32,
-        pybox.width as i32,
-        pybox.height as i32,
-    )?;
-
-    let mut context = cairo::Context::new(&surface)?;
+    // let _pybox = ct::PageArea::from(document.common_data.page_area.physical_box.clone()).to_pixel();
 
     // draw page
     let pages = &document.pages.page;
@@ -160,10 +150,24 @@ pub fn export_ofd_to_png(ofd: &mut Ofd, output_path: &str) -> Result<(), Box<dyn
             page_file.read_to_string(&mut content)?;
         }
         let page = Page::from_xml(&content)?;
-        page.render(&mut context, ofd, &document)?;
+        page.render(context, ofd, &document)?;
     }
+
+    Ok(())
+}
+
+pub fn export_ofd_to_png(ofd: &mut Ofd, output_path: &str, width: u32, height: u32) -> Result<(), Box<dyn Error>> {
+    let surface = cairo::ImageSurface::create(
+        cairo::Format::ARgb32,
+        width as i32,
+        height as i32,
+    )?;
+
+    let mut context = cairo::Context::new(&surface)?;
+    render_ofd_to_context(ofd, &mut context)?;
 
     let mut file = File::create(output_path)?;
     surface.write_to_png(&mut file)?;
+
     Ok(())
 }
