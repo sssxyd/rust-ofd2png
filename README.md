@@ -22,10 +22,13 @@ Current achivements:
 
 Next steps: [TODOs.md](TODOs.md)
 
-To try the current achivements, you can run the following command:
+
+# Usage
+
+To try it out, you can run the following command:
 
 ```bash
-cargo test
+RUST_LOG=debug cargo test -- --nocapture
 ```
 
 and
@@ -33,6 +36,18 @@ and
 ```bash
 open target/out.png
 ```
+
+# Logging
+
+This library uses the `log` crate to record logs. To view log output, you need to initialize a logger implementation in your application. For example, using `env_logger`:
+
+
+```rust
+fn main() {
+    env_logger::init();
+
+    // your code...
+}
 
 
 # Reference projects
