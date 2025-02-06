@@ -14,3 +14,8 @@ log = { version = "0.4.25", features = ["kv"] }
 serde = { version = "1.0.217", features = ["derive"] }
 serde-xml-rs = "0.6.0"
 zip = "2.2.2"
+
+[dependencies.gtk]
+version = "0.9.5"
+package ="gtk4"
+features = ["v4_14"]
