@@ -17,8 +17,9 @@ Current achivements:
     - [x] Rust (basic syntax, types, traits, etc), notes [here](learning/notes.md)
     - [x] OFD spec (basic structure and elements)
 - [x] parsing OFD files
-- [x] drawing text, images, simple paths
+    - [x] drawing text, images, simple paths
 - [x] rendering to png
+- [x] showing in a simple GUI application
 
 Next steps: [TODOs.md](TODOs.md)
 
@@ -29,12 +30,6 @@ To try it out, you can run the following command:
 
 ```bash
 RUST_LOG=debug cargo run
-```
-
-and
-
-```bash
-open target/out.png
 ```
 
 # Logging
