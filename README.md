@@ -28,7 +28,7 @@ Next steps: [TODOs.md](TODOs.md)
 To try it out, you can run the following command:
 
 ```bash
-RUST_LOG=debug cargo test -- --nocapture
+RUST_LOG=debug cargo run
 ```
 
 and
@@ -44,10 +44,14 @@ This library uses the `log` crate to record logs. To view log output, you need t
 
 ```rust
 fn main() {
+    // initialize logger
     env_logger::init();
 
     // your code...
+    let mut ofd_node = read_ofd("learning/test.ofd").unwrap();
+    export_ofd_to_png(&mut ofd_node, "target/out.png").unwrap();
 }
+```
 
 
 # Reference projects

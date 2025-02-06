@@ -167,20 +167,3 @@ pub fn export_ofd_to_png(ofd: &mut Ofd, output_path: &str) -> Result<(), Box<dyn
     surface.write_to_png(&mut file)?;
     Ok(())
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn test_read_ofd() {
-        let ofd_node = read_ofd("./learning/test.ofd").unwrap();
-        debug!("ofd: {:?}", ofd_node);
-    }
-
-    #[test]
-    fn test_export_ofd_to_png() {
-        let mut ofd_node = read_ofd("./learning/test.ofd").unwrap();
-        debug!("ofd: {:?}", ofd_node);
-        export_ofd_to_png(&mut ofd_node, "target/out.png").unwrap();
-    }
-}
