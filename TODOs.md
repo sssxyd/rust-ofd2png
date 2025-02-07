@@ -3,6 +3,7 @@
 
 - [ ] license headers
 - [ ] docs
+- [ ] github pages website
 
 
 ## features
