@@ -1,7 +1,8 @@
 use env_logger;
 
-use gtk::{glib, prelude::*};
+use gtk::{gdk, glib, prelude::*};
 
+use log::debug;
 
 mod widgets {
     use rofd::*;
@@ -100,12 +101,38 @@ fn build_ui(application: &gtk::Application) {
     header_bar.pack_end(&zoom_combo);
     header_bar.pack_end(&zoom_out_button);
 
+    // ofd widget
     let picture = gtk::Picture::builder()
         .content_fit(gtk::ContentFit::ScaleDown)
         .build();
     let paintable = widgets::OFDWidget::default();
     picture.set_paintable(Some(&paintable));
+    picture.set_focusable(true);
+
+
+    let ev_ctrl = gtk::EventControllerKey::new();
+    ev_ctrl.connect_key_released(move |_ctrl, key, _keycode, modifier| {
+        debug!("key: {}, modifier: {:?}", key, modifier);
+        match (key, modifier) {
+            (gdk::Key::equal, gdk::ModifierType::CONTROL_MASK) => {
+                zoom_in();
+            },
+            (gdk::Key::minus, gdk::ModifierType::CONTROL_MASK) => {
+                zoom_out();
+            },
+            _ => ()
+        }
+    });
+    picture.add_controller(ev_ctrl);
 
     window.set_child(Some(&picture));
     window.present();
+}
+
+fn zoom_in() {
+    debug!("zoom in");
+}
+
+fn zoom_out() {
+    debug!("zoom out");
 }
