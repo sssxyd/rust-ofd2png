@@ -69,10 +69,36 @@ fn main() -> glib::ExitCode {
 }
 
 fn build_ui(application: &gtk::Application) {
+    // window
     let window = gtk::ApplicationWindow::new(application);
 
     window.set_title(Some("OFD Reader"));
     window.set_default_size(400, 300);
+
+    // header_bar
+    let header_bar = gtk::HeaderBar::new();
+    window.set_titlebar(Some(&header_bar));
+
+    let zoom_in_button = gtk::Button::new();
+    zoom_in_button.set_icon_name("zoom-in-symbolic");
+    let zoom_out_button = gtk::Button::new();
+    zoom_out_button.set_icon_name("zoom-out-symbolic");
+
+    let zoom_combo = gtk::ComboBoxText::builder()
+        .build();
+    zoom_combo.append_text("25%");
+    zoom_combo.append_text("50%");
+    zoom_combo.append_text("75%");
+    zoom_combo.append_text("100%");
+    zoom_combo.append_text("125%");
+    zoom_combo.append_text("150%");
+    zoom_combo.append_text("175%");
+    zoom_combo.append_text("200%");
+    zoom_combo.set_active(Some(3));
+
+    header_bar.pack_end(&zoom_in_button);
+    header_bar.pack_end(&zoom_combo);
+    header_bar.pack_end(&zoom_out_button);
 
     let picture = gtk::Picture::builder()
         .content_fit(gtk::ContentFit::ScaleDown)
