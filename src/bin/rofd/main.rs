@@ -44,34 +44,32 @@ fn build_ui(application: &gtk::Application) {
     let picture = gtk::Picture::builder()
         .content_fit(gtk::ContentFit::ScaleDown)
         .build();
-    let paintable = widgets::OFDWidget::default();
-    picture.set_paintable(Some(&paintable));
+    let ofd_widget = widgets::OFDWidget::default();
+    picture.set_paintable(Some(&ofd_widget));
     picture.set_focusable(true);
 
 
     let ev_ctrl = gtk::EventControllerKey::new();
-    ev_ctrl.connect_key_released(move |_ctrl, key, _keycode, modifier| {
-        debug!("key: {}, modifier: {:?}", key, modifier);
-        match (key, modifier) {
-            (gdk::Key::equal, gdk::ModifierType::CONTROL_MASK) => {
-                zoom_in();
-            },
-            (gdk::Key::minus, gdk::ModifierType::CONTROL_MASK) => {
-                zoom_out();
-            },
-            _ => ()
+    ev_ctrl.connect_key_released(glib::clone!(
+        #[weak] picture,
+        #[weak] ofd_widget,
+        move |_ctrl, key, _keycode, modifier| {
+            debug!("key: {}, modifier: {:?}", key, modifier);
+            match (key, modifier) {
+                (gdk::Key::equal, gdk::ModifierType::CONTROL_MASK) => {
+                    ofd_widget.zoom_in();
+                    picture.queue_draw();
+                },
+                (gdk::Key::minus, gdk::ModifierType::CONTROL_MASK) => {
+                    ofd_widget.zoom_out();
+                    picture.queue_draw();
+                },
+                _ => ()
+            }
         }
-    });
+    ));
     picture.add_controller(ev_ctrl);
 
     window.set_child(Some(&picture));
     window.present();
-}
-
-fn zoom_in() {
-    debug!("zoom in");
-}
-
-fn zoom_out() {
-    debug!("zoom out");
 }
