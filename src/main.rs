@@ -85,20 +85,12 @@ fn build_ui(application: &gtk::Application) {
     let zoom_out_button = gtk::Button::new();
     zoom_out_button.set_icon_name("zoom-out-symbolic");
 
-    let zoom_combo = gtk::ComboBoxText::builder()
-        .build();
-    zoom_combo.append_text("25%");
-    zoom_combo.append_text("50%");
-    zoom_combo.append_text("75%");
-    zoom_combo.append_text("100%");
-    zoom_combo.append_text("125%");
-    zoom_combo.append_text("150%");
-    zoom_combo.append_text("175%");
-    zoom_combo.append_text("200%");
-    zoom_combo.set_active(Some(3));
+    let model = gtk::StringList::new(&["25%", "50%", "75%", "100%", "125%",
+        "150%", "175%", "200%"]);
+    let zoom_drop_down = gtk::DropDown::new(Some(model), gtk::Expression::NONE);
 
     header_bar.pack_end(&zoom_in_button);
-    header_bar.pack_end(&zoom_combo);
+    header_bar.pack_end(&zoom_drop_down);
     header_bar.pack_end(&zoom_out_button);
 
     // ofd widget
