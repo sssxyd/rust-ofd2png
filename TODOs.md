@@ -15,12 +15,17 @@
     - [ ] types
 - [ ] permissions
 - [ ] encryption/decryption
+- [ ] signing
 - [ ] scaling
+    - [x] scaling with keystroke
+    - [ ] scaling with zoom in/out buttons
+    - [ ] scaling with wheels (maybe?)
+    - [ ] viewport, scroll and drag
 - [ ] rendering
     - [x] TextObject
     - [x] PathObject
-    - [ ] ImageObject
-    - [ ] PageBlock
+    - [x] ImageObject
+    - [x] PageBlock
 - [ ] GUI application
 
 ## dev
