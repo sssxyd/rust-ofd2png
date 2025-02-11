@@ -50,6 +50,7 @@ fn build_ui(application: &gtk::Application) {
 
 
     let ev_ctrl = gtk::EventControllerKey::new();
+    // see https://github.com/gtk-rs/gtk4-rs/blob/main/examples/text_viewer/main.rs
     ev_ctrl.connect_key_released(glib::clone!(
         #[weak] picture,
         #[weak] ofd_widget,
