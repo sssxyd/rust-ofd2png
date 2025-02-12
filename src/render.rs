@@ -42,6 +42,7 @@ impl Renderable for PathObject {
         _ofd: &mut Ofd, _document: &Document) -> Result<(), Error> {
         context.save()?;
 
+        // TODO(hualet): implement ctm.
         let boundary = ct::Box::from(self.boundary.clone()).to_pixel();
         let color = ct::Color::from(
             self.stroke_color.as_ref().unwrap().value.clone());
@@ -89,8 +90,21 @@ impl Renderable for TextObject {
         context.set_source_rgb(fill_color.value[0] as f64 / 255.0,
             fill_color.value[1] as f64 / 255.0,
             fill_color.value[2] as f64 / 255.0);
-        context.move_to(boundary.x as f64 + mmtopx(self.text_code.x),
+
+        // NOTE(hualet): transform should be used together with translate,
+        // so the coordinate system is correct.
+        // THEY ARE BOTH TRANSFORMATIONS!
+        context.translate(boundary.x as f64 + mmtopx(self.text_code.x),
             boundary.y as f64 + mmtopx(self.text_code.y));
+        if let Some(ctm) = self.ctm.as_ref() {
+            debug!("render text object:{:?} with ctm: {:?}",
+                self.text_code.value, ctm);
+            let matrix = ct::Matrix::from(ctm.clone());
+            let cairo_matrix: cairo::Matrix = matrix.into();
+            context.transform(cairo_matrix);
+        }
+
+        context.move_to(0., 0.);
         context.show_text(self.text_code.value.as_str())?;
 
         context.restore()
@@ -103,6 +117,7 @@ impl Renderable for ImageObject {
         ofd: &mut Ofd, document: &Document) -> Result<(), Error> {
         context.save()?;
 
+        // TODO(hualet): implement ctm.
         let boundary = ct::Box::from(self.boundary.clone()).to_pixel();
 
         // find the image file:
@@ -178,4 +193,39 @@ fn _render_page_block(events: Vec<Event>, context: &mut cairo::Context,
     }
 
     Ok(())
+}
+
+/*
+    ct::Matrix
+
+    | a b 0 |
+    | c d 0 |
+    | e f 1 |
+
+    x'=ax+cy+e
+    y'=bx+dy+f
+
+
+    cairo::Matrix
+
+    typedef struct {
+        double xx; double yx;
+        double xy; double yy;
+        double x0; double y0;
+    } cairo_matrix_t;
+
+    x_new = xx * x + xy * y + x0;
+    y_new = yx * x + yy * y + y0;
+*/
+impl From<ct::Matrix> for cairo::Matrix {
+    fn from(value: ct::Matrix) -> Self {
+        Self::new(
+            value.a, // xx
+            value.b, // yx
+            value.c, // xy
+            value.d, // yy
+            value.e, // x0
+            value.f  // y0
+        )
+    }
 }

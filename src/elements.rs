@@ -338,6 +338,8 @@ pub struct PathObject {
     pub line_width: f64,
     pub stroke: Option<bool>,
     pub stroke_color: Option<Color>,
+    #[serde(rename = "CTM")]
+    pub ctm: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -378,6 +380,8 @@ pub struct TextObject {
     pub size: f64,
     pub fill_color: Option<Color>,
     pub text_code: TextCode,
+    #[serde(rename = "CTM")]
+    pub ctm: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Clone)]

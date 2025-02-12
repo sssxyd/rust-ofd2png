@@ -6,6 +6,9 @@
 
 参考： [http://wiki.easyofd.cn/OFD标准/页面描述](http://wiki.easyofd.cn/OFD%E6%A0%87%E5%87%86/%E9%A1%B5%E9%9D%A2%E6%8F%8F%E8%BF%B0) 中的 “变换矩阵 CTM” 部分。
 
+
+理解矩阵变换: [Transformation with cairo](https://gist.github.com/bert/1164354/c0391388afffc4b287c46ac79287f77e94c712e3)
+
 ### TextObject
 
 > pdf page 63

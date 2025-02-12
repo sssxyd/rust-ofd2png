@@ -35,6 +35,16 @@ pub mod ct {
         pub alpha: i32,
     }
 
+    #[derive(Debug)]
+    pub struct Matrix {
+        pub a: f64,
+        pub b: f64,
+        pub c: f64,
+        pub d: f64,
+        pub e: f64,
+        pub f: f64,
+    }
+
     // implement string to PageArea
     impl From<String> for PageArea {
         fn from(value: String) -> Self {
@@ -55,6 +65,23 @@ pub mod ct {
                 y: mmtopx(self.y),
                 width: mmtopx(self.width),
                 height: mmtopx(self.height),
+            }
+        }
+    }
+
+    impl From<String> for Matrix {
+        fn from(value: String) -> Self {
+            let parts: Vec<f64> = value.split_whitespace().map(|s| s.parse().unwrap()).collect();
+            // According to the spec, the matrix should be 6 elements long.
+            assert_eq!(parts.len(), 6);
+
+            Matrix {
+                a: parts[0],
+                b: parts[1],
+                c: parts[2],
+                d: parts[3],
+                e: parts[4],
+                f: parts[5]
             }
         }
     }
