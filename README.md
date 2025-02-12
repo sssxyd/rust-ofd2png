@@ -49,6 +49,26 @@ fn main() {
 ```
 
 
+# Project Strcuture
+
+This project is organized into the following directories and files:
+
+- `src/`: source code.
+- `src/bin/rofd`: the rofd binary crate.
+- `src/lib.rs`: the main library crate.
+    - `src/document.rs`: document parsing and rendering.
+    - `src/page.rs`: page parsing and rendering.
+    - `src/render.rs`: rendering to Cairo surface.
+    - `src/types.rs`: types used in OFD spec.
+    - `src/elements.rs`: OFD elements.
+    - `src/ofd.rs`: OFD file parsing.
+- `learning/`: learning notes and examples.
+- `resources/`: resources, such as the logo.
+- `LICENSE`: license file.
+- `Cargo.toml`: cargo configuration file.
+- `README.md`: this readme file.
+
+
 # Reference projects
 
 - [ofdrw](https://github.com/ofdrw/ofdrw)
