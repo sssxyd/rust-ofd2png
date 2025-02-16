@@ -11,6 +11,7 @@ license = "MIT"
 cairo-rs = { version = "0.20.7", features = ["png"] }
 env_logger = "0.11.6"
 log = { version = "0.4.25", features = ["kv"] }
+qmetaobject = "0.2.10"
 serde = { version = "1.0.217", features = ["derive"] }
 serde-xml-rs = "0.6.0"
 zip = "2.2.2"

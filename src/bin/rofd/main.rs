@@ -1,3 +1,4 @@
+/*
 use env_logger;
 
 use gtk::{gdk, glib, prelude::*};
@@ -73,4 +74,23 @@ fn build_ui(application: &gtk::Application) {
 
     window.set_child(Some(&picture));
     window.present();
+}
+*/
+
+use log::debug;
+use qmetaobject::prelude::*;
+
+use std::fs;
+use std::path::Path;
+
+fn main() {
+    env_logger::init();
+
+    let mut engine = QmlEngine::new();
+    let qml_root_path = Path::new(file!()).parent().unwrap()
+        .join("ui/main_window.qml");
+    let qml_root_content = fs::read_to_string(qml_root_path).unwrap();
+
+    engine.load_data(qml_root_content.into());
+    engine.exec();
 }
