@@ -6,6 +6,7 @@ mod page;
 mod render;
 mod types;
 mod elements;
+mod build;
 
 use std::error::Error;
 use std::fs::File;
