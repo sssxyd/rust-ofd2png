@@ -336,7 +336,7 @@ pub struct Page {
 #[serde(rename_all = "PascalCase")]
 pub struct Area {
     pub physical_box: String,
-    pub application_box: String,
+    pub application_box: Option<String>,
 }
 
 #[derive(Deserialize, Debug)]

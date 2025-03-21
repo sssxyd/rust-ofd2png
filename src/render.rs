@@ -5,7 +5,7 @@ use std::io::Read;
 use log::debug;
 
 use cairo;
-use cairo::Error;
+use cairo::IoError;
 
 use crate::ofd::Ofd;
 use crate::document::Document;
@@ -16,12 +16,12 @@ use crate::types::{mmtopx, ct};
 
 pub trait Renderable {
     fn render(&self, context: &mut cairo::Context,
-        ofd: &mut Ofd, document: &Document) -> Result<(), Error>;
+        ofd: &mut Ofd, document: &Document) -> Result<(), IoError>;
 }
 
 impl Renderable for Document {
     fn render(&self, _context: &mut cairo::Context,
-        _ofd: &mut Ofd, _document: &Document) -> Result<(), Error> {
+        _ofd: &mut Ofd, _document: &Document) -> Result<(), IoError> {
         debug!("render document");
         Ok(())
         // self.pages.page.iter().for_each(|p| p.render(context));
@@ -30,7 +30,7 @@ impl Renderable for Document {
 
 impl Renderable for Page {
     fn render(&self, context: &mut cairo::Context,
-        ofd: &mut Ofd, document: &Document) -> Result<(), Error> {
+        ofd: &mut Ofd, document: &Document) -> Result<(), IoError> {
         debug!("render page");
         _render_page_block(self.content.layer.events.clone(),
             context, ofd, document)
@@ -39,13 +39,13 @@ impl Renderable for Page {
 
 impl Renderable for PathObject {
     fn render(&self, context: &mut cairo::Context,
-        _ofd: &mut Ofd, _document: &Document) -> Result<(), Error> {
-        context.save()?;
+        _ofd: &mut Ofd, _document: &Document) -> Result<(), IoError> {
+        context.save();
 
         // TODO(hualet): implement ctm.
         let boundary = ct::Box::from(self.boundary.clone()).to_pixel();
         let color = ct::Color::from(
-            self.stroke_color.as_ref().unwrap().value.clone());
+            self.stroke_color.as_ref().unwrap_or(&Color { value: ("255 0 0".to_string()), alpha: (Some(0.0)) }).value.clone());
 
         context.set_source_rgb(color.value[0] as f64 / 255.0,
             color.value[1] as f64 / 255.0,
@@ -61,16 +61,17 @@ impl Renderable for PathObject {
             (boundary.y + boundary.height) as f64);
         context.line_to(boundary.x as f64, boundary.y as f64);
 
-        context.stroke()?;
+        context.stroke();
 
-        context.restore()
+        context.restore();
+        Ok(())
     }
 }
 
 impl Renderable for TextObject {
     fn render(&self, context: &mut cairo::Context,
-        _ofd: &mut Ofd, document: &Document) -> Result<(), Error> {
-        context.save()?;
+        _ofd: &mut Ofd, document: &Document) -> Result<(), IoError> {
+        context.save();
 
         let boundary = ct::Box::from(self.boundary.clone()).to_pixel();
         let color = self.fill_color.as_ref().unwrap_or(&Color::default()).value.clone();
@@ -80,7 +81,7 @@ impl Renderable for TextObject {
         for font in document.public_res.fonts.font.iter() {
             if font.id == font_id {
                 // TODO(hualet): custom font file loading.
-                context.select_font_face(font.family_name.as_str(),
+                context.select_font_face(font.family_name.as_ref().unwrap_or(&font.font_name),
                     cairo::FontSlant::Normal, cairo::FontWeight::Normal);
                 break;
             }
@@ -105,17 +106,18 @@ impl Renderable for TextObject {
         }
 
         context.move_to(0., 0.);
-        context.show_text(self.text_code.value.as_str())?;
+        context.show_text(self.text_code.value.as_str());
 
-        context.restore()
+        context.restore();
+        Ok(())
     }
 }
 
 // implement Renderable for ImageObject
 impl Renderable for ImageObject {
     fn render(&self, context: &mut cairo::Context,
-        ofd: &mut Ofd, document: &Document) -> Result<(), Error> {
-        context.save()?;
+        ofd: &mut Ofd, document: &Document) -> Result<(), IoError> {
+        context.save();
 
         // TODO(hualet): implement ctm.
         let boundary = ct::Box::from(self.boundary.clone()).to_pixel();
@@ -128,33 +130,40 @@ impl Renderable for ImageObject {
             if resource.id == self.resource_id {
                 let path = Path::new(ofd.node.doc_body.doc_root.as_str());
                 let res_path = &path.parent().unwrap()
-                    .join(document.doc_res.base_loc.as_str())
+                    .join(document.doc_res.base_loc.as_ref().unwrap_or(&String::from("")))
                     .join(resource.media_file.as_str());
 
-                let mut file = ofd.zip_archive.by_name(res_path.to_str().unwrap()).unwrap();
+                println!("image file path: {:?}", res_path.to_str().unwrap());
+                // 去除首个 / 字符，否则会导致文件查找失败
+                let mut image_path: &str = res_path.to_str().unwrap();
+                image_path = image_path.strip_prefix('/').unwrap_or(&image_path);
+                println!("image file path: {:?}", image_path);
+
+                let mut file = ofd.zip_archive.by_name(image_path).unwrap();
                 let mut content = Vec::new();
                 let _size = file.read_to_end(&mut content).unwrap();
 
                 let mut file_reader = Cursor::new(content);
                 // FIXME(hualet): png is not for sure.
                 let surface = cairo::ImageSurface::create_from_png(&mut file_reader).unwrap();
-                context.scale(boundary.width/ surface.width() as f64,
-                    boundary.height/ surface.height() as f64);
+                context.scale(boundary.width/ surface.get_width() as f64,
+                    boundary.height/ surface.get_height() as f64);
                 context.set_source_surface(&surface,
                     boundary.x as f64,
-                    boundary.y as f64)?;
-                context.paint()?;
+                    boundary.y as f64);
+                context.paint();
             }
         }
 
 
-        context.restore()
+        context.restore();
+        Ok(())
     }
 }
 
 impl Renderable for PageBlock {
     fn render(&self, context: &mut cairo::Context,
-        ofd: &mut Ofd, document: &Document) -> Result<(), Error> {
+        ofd: &mut Ofd, document: &Document) -> Result<(), IoError> {
         debug!("render pageblock");
         _render_page_block(self.events.clone(), context, ofd, document)
     }
@@ -162,7 +171,7 @@ impl Renderable for PageBlock {
 
 
 fn _render_page_block(events: Vec<Event>, context: &mut cairo::Context,
-    ofd: &mut Ofd, document: &Document) -> Result<(), Error> {
+    ofd: &mut Ofd, document: &Document) -> Result<(), IoError> {
     for event in events.iter() {
         match event {
             Event::PathObject(p) => {

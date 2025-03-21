@@ -1,9 +1,15 @@
-use rofd::*;
+use ofd2png::*;
 
 #[test]
 fn test_read_ofd() {
-    let ofd_node = read_ofd("./learning/test.ofd").unwrap();
-    println!("ofd: {:#?}", ofd_node);
+    let result = read_ofd("./learning/fapiao.ofd");
+    if result.is_err() {
+        println!("error: {:?}", result.err().unwrap());
+        
+    } else {
+        let ofd = result.unwrap();
+        println!("ofd: {:#?}", ofd);
+    }
 }
 
 #[test]

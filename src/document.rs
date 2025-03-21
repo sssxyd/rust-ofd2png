@@ -1,5 +1,4 @@
-use serde::{Deserialize};
-
+use serde::Deserialize;
 use crate::elements::*;
 
 /* Document.xml
@@ -38,7 +37,7 @@ pub struct Document {
 #[derive(Deserialize, Debug, Default)]
 #[serde(rename_all = "PascalCase")]
 pub struct CommonData {
-    pub page_area: PageArea,
+    pub page_area: Option<PageArea>,
     pub public_res: String,
     pub document_res: String,
     #[serde(rename = "MaxUnitID")]
@@ -49,7 +48,7 @@ pub struct CommonData {
 #[serde(rename_all = "PascalCase")]
 pub struct PageArea {
     pub physical_box: String,
-    pub application_box: String,
+    pub application_box: Option<String>,
 }
 
 #[derive(Deserialize, Debug, Default)]
@@ -91,7 +90,7 @@ impl Document {
 #[derive(Deserialize, Debug, Default)]
 #[serde(rename_all = "PascalCase")]
 pub struct DocumentRes {
-    pub base_loc: String,
+    pub base_loc: Option<String>,
     pub multi_medias: MultiMedias,
 }
 
@@ -106,7 +105,7 @@ pub struct MultiMedias {
 pub struct MultiMedia {
     #[serde(rename = "ID")]
     pub id: u32,
-    pub format: String,
+    pub format: Option<String>,
     pub media_file: String,
 }
 
@@ -130,7 +129,7 @@ impl DocumentRes {
 #[derive(Deserialize, Debug, Default)]
 #[serde(rename_all = "PascalCase")]
 pub struct PublicRes {
-    pub base_loc: String,
+    pub base_loc: Option<String>,
     pub fonts: Fonts,
 }
 
@@ -145,7 +144,7 @@ pub struct Fonts {
 pub struct Font {
     #[serde(rename = "ID")]
     pub id: u32,
-    pub family_name: String,
+    pub family_name: Option<String>,
     pub font_name: String,
 }
 

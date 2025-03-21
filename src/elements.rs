@@ -421,8 +421,8 @@ pub struct Annot {
     #[serde(rename = "ID")]
     pub id: u32,
     pub r#type: String,
-    pub creator: String,
-    pub last_mod_date: String,
+    pub creator: Option<String>,
+    pub last_mod_date: Option<String>,
     pub appearance: Appearance,
 }
 
@@ -430,5 +430,5 @@ pub struct Annot {
 #[serde(rename_all = "PascalCase")]
 pub struct Appearance {
     pub boundary: String,
-    pub image_object: ImageObject,
+    pub image_object: Option<ImageObject>,
 }

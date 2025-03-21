@@ -6,7 +6,6 @@ mod page;
 mod render;
 mod types;
 mod elements;
-mod build;
 
 use std::error::Error;
 use std::fs::File;
@@ -162,9 +161,9 @@ pub fn export_ofd_to_png(ofd: &mut Ofd, output_path: &str, width: u32, height: u
         cairo::Format::ARgb32,
         width as i32,
         height as i32,
-    )?;
+    ).map_err(|e| e.to_string())?;
 
-    let mut context = cairo::Context::new(&surface)?;
+    let mut context = cairo::Context::new(&surface);
     render_ofd_to_context(ofd, &mut context)?;
 
     let mut file = File::create(output_path)?;

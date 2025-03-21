@@ -47,15 +47,15 @@ pub struct DocBody {
 #[serde(rename_all = "PascalCase")]
 pub struct DocInfo {
     #[serde(rename = "DocID")]
-    pub doc_id: String,
+    pub doc_id: Option<String>,
     #[serde(rename = "CreationDate")]
-    pub creation_date: String,
+    pub creation_date: Option<String>,
     #[serde(rename = "Creator")]
-    pub creator: String,
+    pub creator: Option<String>,
     #[serde(rename = "CreatorVersion")]
-    pub creator_version: String,
+    pub creator_version: Option<String>,
     #[serde(rename = "ModDate")]
-    pub mod_date: String,
+    pub mod_date: Option<String>,
     #[serde(rename = "CustomDatas")]
     pub custom_datas: CustomDataList,
 }
